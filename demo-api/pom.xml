@@ -12,7 +12,26 @@
     <name>api-demo Maven Webapp</name>
     <url>http://maven.apache.org</url>
     <dependencies>
-
+        <dependency>
+            <groupId>org.wudan</groupId>
+            <artifactId>commons-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wudan</groupId>
+            <artifactId>commons-exception</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wudan</groupId>
+            <artifactId>commons-dao</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wudan</groupId>
+            <artifactId>commons-log</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>demo-api</finalName>

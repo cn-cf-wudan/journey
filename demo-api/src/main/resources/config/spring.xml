@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+    
+    
+	<!-- 让spring扫描注入service和dao -->
+    <context:component-scan base-package="org.journey">
+    	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+	<!-- zookeeper集中管理logback的日志级别 -->
+	<!-- <bean id="zookeeperFactoryBean" class="com.sinldo.zk.ZookeeperFactoryBean" lazy-init="false">
+		<property name="zkConnectionString" value="192.168.1.68:2181" />
+		设置zookeeper的事件监听者，logback日志级别znode监听器
+		<property name="listeners">
+			<list>
+				<bean class="com.sinldo.zk.LogbackLevelListener">
+					<constructor-arg value="/logbacklevel" />
+				</bean>
+			</list>
+		</property>
+	</bean> -->
+
+	<!-- 引入commons-dao中redis配置文件-->
+	<import resource="classpath*:config/spring-redis-cluster.xml"></import>
+	<!--引入commons-exception中的配置文件-->
+	<import resource="classpath*:config/spring-exception.xml"></import>
+	<!-- 引入commons-log中的配置文件-->
+	<import resource="classpath*:config/spring-log.xml"></import>
+
+</beans>

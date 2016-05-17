@@ -16,8 +16,6 @@ public class ${className}ServiceImpl implements I${className}Service {
 
     static final Logger logger = LoggerFactory.getLogger(${className}ServiceImpl.class);
 
-    @Resource
-
     @Override
     public ${className}VO ${classNameLower}(${className}IO ${classNameLower}IO) throws Exception {
         

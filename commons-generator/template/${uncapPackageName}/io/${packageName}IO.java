@@ -9,6 +9,6 @@ package ${basepackage}.${packager.uncapPackageName}.io;
  * @author ${packager.author}
  * @date ${packager.date}
  */
-public class ${className}IO {
+public class ${className}IO extends RequestHeader{
 
 }

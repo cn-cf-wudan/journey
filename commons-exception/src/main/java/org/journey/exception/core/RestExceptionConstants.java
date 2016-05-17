@@ -9,8 +9,12 @@ package org.journey.exception.core;
  */
 public class RestExceptionConstants {
 
+    //响应成功
+    public static final int SUCCESS_CODE = 00000;
+    public static final String SUCCESS_MSG = "SUCCESS";
+
     //参数绑定异常
-    public static final int ARGUMENT_ERROR_CODE = 00000;
+    public static final int ARGUMENT_ERROR_CODE = 10000;
     public static final String ARGUMENT_ERROR_MSG = "参数格式错误";
 
     //服务器异常

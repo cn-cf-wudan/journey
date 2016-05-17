@@ -43,9 +43,9 @@ public class AopLog {
     @Before(CUT)
     public void before(JoinPoint pjp) throws Throwable {
         logger.debug("----------" + pjp.getTarget().getClass() + "." + pjp.getSignature().getName() + " start------------");
-        for (Object obj : pjp.getArgs()) {
+        /*for (Object obj : pjp.getArgs()) {
             logger.debug("params:" + (obj != null ? obj.toString() : ""));
-        }
+        }*/
         return;
     }
 

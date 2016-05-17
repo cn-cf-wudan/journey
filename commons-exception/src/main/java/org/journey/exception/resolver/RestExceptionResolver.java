@@ -1,7 +1,10 @@
 package org.journey.exception.resolver;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import org.journey.exception.core.BusinessException;
 import org.journey.exception.core.RestExceptionConstants;
+import org.journey.exception.model.ErrorResponse;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,6 +31,10 @@ import java.util.List;
  * @date 2016年4月1日 下午3:42:49
  */
 public class RestExceptionResolver extends SimpleMappingExceptionResolver {
+
+    private String contentType = "application/json;charset=UTF-8";
+
+    private String encode = "UTF-8";
 
     public RestExceptionResolver() {
         //值越小，越先执行
@@ -68,6 +75,7 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
             StringBuffer sb = new StringBuffer();
             List<FieldError> errorList = argumentEx.getBindingResult().getFieldErrors();
             for (FieldError error : errorList) {
+                sb.append(error.getField());
                 sb.append("字段");
                 sb.append(error.getDefaultMessage());
             }
@@ -87,16 +95,19 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
              */
             code = RestExceptionConstants.ARGUMENT_ERROR_CODE;
             errorMessage = RestExceptionConstants.ARGUMENT_ERROR_MSG;
-        } else {
+        } else if(ex instanceof JsonSyntaxException){
+            /**
+             * 5.处理  JsonSyntaxException,目前只是GsonHttpMessageConverter转换时发生的异常
+             */
+            code = RestExceptionConstants.ARGUMENT_ERROR_CODE;
+            errorMessage = RestExceptionConstants.ARGUMENT_ERROR_MSG;
+        } else{
             code = RestExceptionConstants.SERVER_EXCEPTION_CODE;
             errorMessage = RestExceptionConstants.SERVER_EXCEPTION_MSG;
         }
 
         logger.error(ex);
-        if (handleException(response, code, errorMessage)) {
-            //真正处理异常的逻辑
-            return new ModelAndView();
-        }
+        handleException(response, code, errorMessage);
         return null;
     }
 
@@ -114,10 +125,13 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
     private boolean handleException(HttpServletResponse response, int code, String errorMessage) {
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            output.write(String.format("{\"code\":%d, \"message\":\"%s\"}", code, errorMessage).getBytes("UTF-8"));
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setCode(code);
+            errorResponse.setMessage(errorMessage);
+            output.write(new Gson().toJson(errorResponse).getBytes(encode));
 
             response.setStatus(code);
-            response.setContentType("application/json;charset=UTF-8");
+            response.setContentType(contentType);
             response.setContentLength(output.size());
 
             ServletOutputStream responseOutputStream = response.getOutputStream();
@@ -132,4 +146,19 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
         return false;
     }
 
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getEncode() {
+        return encode;
+    }
+
+    public void setEncode(String encode) {
+        this.encode = encode;
+    }
 }
