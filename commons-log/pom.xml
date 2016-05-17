@@ -12,5 +12,11 @@
     <groupId>org.wudan</groupId>
     <artifactId>commons-log</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.wudan</groupId>
+            <artifactId>commons-exception</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

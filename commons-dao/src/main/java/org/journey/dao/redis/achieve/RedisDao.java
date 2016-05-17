@@ -221,6 +221,13 @@ public class RedisDao extends JedisCluster {
         Object value;
         for (Field field : fields) {
 
+            /**
+             * 如果该字段被标注不写入redis 则跳过
+             */
+            if (field.getAnnotation(NotInRedis.class) != null) {
+                continue;
+            }
+
             String valueInMap = map.get(field.getName());
             /*if (field.getType().equals(String.class)) {
                 //这样做是为了解决字符串中出现  空格等特殊字符引起的 json反序列化错误

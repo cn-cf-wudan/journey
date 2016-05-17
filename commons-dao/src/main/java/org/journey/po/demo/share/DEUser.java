@@ -15,9 +15,11 @@ import java.util.Date;
  */
 public class DEUser {
 
-    public final static String VERSION_FIELD_NAME = "version";
+    @NotInRedis
+    public transient final static String VERSION_FIELD_NAME = "version";
 
-    public final static String CURRENT_ACCOUNT_FIELD_NAME = "currentAccount";
+    @NotInRedis
+    public transient final static String CURRENT_ACCOUNT_FIELD_NAME = "currentAccount";
 
     //redis键前缀 主键
     @NotInRedis

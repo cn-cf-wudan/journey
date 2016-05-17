@@ -13,7 +13,7 @@
     </bean>
 
     <!-- redis集群配置 -->
-    <bean id="jedisCluster" class="org.journey.dao.redis.achieve.RedisDao">
+    <bean id="redisDao" class="org.journey.dao.redis.achieve.RedisDao">
         <constructor-arg>
             <set>
                 <bean class="redis.clients.jedis.HostAndPort">
