@@ -16,3 +16,7 @@
 *.iml
 
 .idea/vcs.xml
+
+.idea/*
+
+*/target
