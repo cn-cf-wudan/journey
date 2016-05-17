@@ -15,7 +15,7 @@ import org.springframework.util.StreamUtils;
 import java.io.IOException;
 
 /**
- * @author 张光银
+ * @author wudan-mac
  * @ClassName: GsonHttpMessageConverter
  * @ClassNameExplain: Gson转换器
  * @Description: 替换spring默认的jackson，使用gson，并写入header
