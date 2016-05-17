@@ -1,0 +1,11 @@
+import ${basepackage}.${packager.uncapPackageName}.io.${packager.packageName}IO;
+import ${basepackage}.${packager.uncapPackageName}.vo.${packager.packageName}VO;
+import ${basepackage}.${packager.uncapPackageName}.service.I${packager.packageName}Service;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
