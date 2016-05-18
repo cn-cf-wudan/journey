@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 /**
  * @author wudan-mac
  * @ClassName: MyMappingJackson2HttpMessageConverter
- * @ClassNameExplain:
+ * @ClassNameExplain: json转换器
  * @Description:
  * @date 16/5/18 上午9:04
  */
