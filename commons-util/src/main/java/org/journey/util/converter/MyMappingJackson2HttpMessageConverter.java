@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
  */
 public class MyMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
 
-    Logger logger = LoggerFactory.getLogger(GsonHttpMessageConverter.class);
+    Logger logger = LoggerFactory.getLogger(MyMappingJackson2HttpMessageConverter.class);
 
     private final static String CONTENT_TYPE_KEY = "Content-Type";
 
