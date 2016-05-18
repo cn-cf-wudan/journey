@@ -15,16 +15,6 @@
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
 
-    <!-- 解析请求头和响应头
-    <mvc:annotation-driven>
-        <mvc:message-converters>
-            <bean class="org.journey.util.converter.GsonHttpMessageConverter">
-                <property name="contentType" value="application/json;charset=UTF-8"></property>
-                <property name="dateFormart" value="yyyy-MM-dd HH:mm:ss"></property>
-            </bean>
-        </mvc:message-converters>
-    </mvc:annotation-driven>-->
-
     <mvc:annotation-driven>
         <mvc:message-converters>
             <bean class="org.journey.util.converter.MyMappingJackson2HttpMessageConverter">
