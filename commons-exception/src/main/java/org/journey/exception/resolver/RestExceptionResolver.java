@@ -93,14 +93,17 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
             /**
              * 4.处理  undeclaredthrowableexception异常,目前只是GsonHttpMessageConverter转换时发生的异常
              */
+            UndeclaredThrowableException undeclaredThrowableException = (UndeclaredThrowableException)ex;
             code = RestExceptionConstants.ARGUMENT_ERROR_CODE;
-            errorMessage = RestExceptionConstants.ARGUMENT_ERROR_MSG;
+            errorMessage = undeclaredThrowableException.getMessage();
         } else if(ex instanceof JsonSyntaxException){
             /**
              * 5.处理  JsonSyntaxException,目前只是GsonHttpMessageConverter转换时发生的异常
              */
+            JsonSyntaxException jsonSyntaxException = (JsonSyntaxException) ex;
             code = RestExceptionConstants.ARGUMENT_ERROR_CODE;
-            errorMessage = RestExceptionConstants.ARGUMENT_ERROR_MSG;
+
+            errorMessage = jsonSyntaxException.getCause().getMessage();
         } else{
             code = RestExceptionConstants.SERVER_EXCEPTION_CODE;
             errorMessage = RestExceptionConstants.SERVER_EXCEPTION_MSG;

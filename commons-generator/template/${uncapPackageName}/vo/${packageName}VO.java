@@ -9,6 +9,6 @@ package ${basepackage}.${packager.uncapPackageName}.vo;
  * @author ${packager.author}
  * @date ${packager.date}
  */
-public class ${className}VO {
+public class ${className}VO extends ResponseHeader{
 
 }
