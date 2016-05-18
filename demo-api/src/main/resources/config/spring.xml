@@ -12,9 +12,10 @@
     
     
 	<!-- 让spring扫描注入service和dao -->
-    <context:component-scan base-package="org.journey">
+    <context:component-scan base-package="org.journey.demoapi.business.**.service.impl">
     	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
+
 
 	<!-- zookeeper集中管理logback的日志级别 -->
 	<!-- <bean id="zookeeperFactoryBean" class="com.sinldo.zk.ZookeeperFactoryBean" lazy-init="false">

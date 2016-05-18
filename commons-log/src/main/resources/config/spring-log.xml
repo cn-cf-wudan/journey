@@ -10,8 +10,14 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
+
+    <context:annotation-config/>
+
     <!-- 注入注解的类 -->
     <context:component-scan base-package="org.journey.log">
     </context:component-scan>
+
+    <!-- 激活自动代理功能-->
+    <aop:aspectj-autoproxy/>
 
 </beans>

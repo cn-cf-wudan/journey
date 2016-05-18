@@ -27,6 +27,7 @@ public class DemoServiceImpl implements IDemoService {
         demoVO.setCode(RestExceptionConstants.SUCCESS_CODE);
         demoVO.setMessage(RestExceptionConstants.SUCCESS_MSG);
         demoVO.setPhotoCode("111");
+        demoVO.setUserName("吴丹丹");
 
         return demoVO == null ? new DemoVO() : demoVO;
     }

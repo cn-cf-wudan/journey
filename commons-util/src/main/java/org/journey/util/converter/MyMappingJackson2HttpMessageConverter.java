@@ -1,7 +1,7 @@
 package org.journey.util.converter;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpInputMessage;
@@ -13,8 +13,6 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author wudan-mac
@@ -27,17 +25,46 @@ public class MyMappingJackson2HttpMessageConverter extends MappingJackson2HttpMe
 
     Logger logger = LoggerFactory.getLogger(MyMappingJackson2HttpMessageConverter.class);
 
+    //响应content-type 的key
     private final static String CONTENT_TYPE_KEY = "Content-Type";
 
-    private String contentType = "application/json;charset=UTF-8";
+    //响应content-type的值 可以在xml里设置
+    private String responseContentType = "application/json;charset=UTF-8";
 
-    private String inputDateFormart = "yyyy-MM-dd HH:ss:dd";
+    //响应文本编码
+    private String responseEncode = "UTF-8";
 
-    private Gson gson = new GsonBuilder().setDateFormat(inputDateFormart).create();
+    //当入参json中包含 javaBean中不存在的属性时 是否返回序列化失败 可以在xml里设置
+    private boolean failOnUnknownProperties = false;
+
+    public String getResponseContentType() {
+        return responseContentType;
+    }
+
+    public void setResponseContentType(String responseContentType) {
+        this.responseContentType = responseContentType;
+    }
+
+    public boolean isFailOnUnknownProperties() {
+        return failOnUnknownProperties;
+    }
+
+    public void setFailOnUnknownProperties(boolean failOnUnknownProperties) {
+        this.failOnUnknownProperties = failOnUnknownProperties;
+    }
+
+    public String getResponseEncode() {
+        return responseEncode;
+    }
+
+    public void setResponseEncode(String responseEncode) {
+        this.responseEncode = responseEncode;
+    }
 
     @Override
     public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, failOnUnknownProperties);
         /**
          * 取出requestBody中内容
          * 目前只是做简单的打印
@@ -47,39 +74,20 @@ public class MyMappingJackson2HttpMessageConverter extends MappingJackson2HttpMe
                 inputMessage.getBody(), inputMessage.getHeaders().getContentType().getCharSet());
         //打印入参
         logger.debug("request json : \n" + json);
-        return gson.fromJson(json, type);
+        JavaType javaType = this.getJavaType(type, contextClass);
+        return objectMapper.readValue(json, javaType);
     }
 
     @Override
     protected void writeInternal(Object object, Type type, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
 
-        /**
-         * 这里目前只是做一下返回参数打印所以启用了一个线程去执行  不影响主线程执行速度
-         */
-        ExecutorService service = Executors.newCachedThreadPool();
-        service.execute(() -> {
-            String json = gson.toJson(object);
-            logger.debug("request json : \n" + json);
-        });
-        service.shutdown();
+        String json = objectMapper.writeValueAsString(object);
+        logger.debug("request json : \n" + json);
         //写响应头 为json 避免一些终端不识别
-        outputMessage.getHeaders().add(CONTENT_TYPE_KEY, contentType);
-        super.writeInternal(object, type, outputMessage);
+        outputMessage.getHeaders().add(CONTENT_TYPE_KEY, responseContentType);
+        outputMessage.getBody().write(json.getBytes(responseEncode));
     }
 
-    public String getContentType() {
-        return contentType;
-    }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
 
-    public String getInputDateFormart() {
-        return inputDateFormart;
-    }
-
-    public void setInputDateFormart(String inputDateFormart) {
-        this.inputDateFormart = inputDateFormart;
-    }
 }

@@ -13,7 +13,4 @@
     <!-- 注入注解的类 -->
     <context:component-scan base-package="org.journey.exception">
     </context:component-scan>
-
-    <!-- 启用代理默认使用jdk动态代理 -->
-    <aop:aspectj-autoproxy expose-proxy="false"/>
 </beans>

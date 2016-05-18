@@ -11,33 +11,47 @@
     http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <!-- 让mvc注入controller -->
-    <context:component-scan base-package="org.journey.demoapi.business">
+    <context:component-scan base-package="org.journey.demoapi.business.**.controller">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
 
+    <!-- 设置json解析器 -->
     <mvc:annotation-driven>
+        <!-- 自定义的json解析器 继承自MappingJackson2HttpMessageConverter -->
         <mvc:message-converters>
             <bean class="org.journey.util.converter.MyMappingJackson2HttpMessageConverter">
+                <!-- 响应header类型 -->
+                <property name="responseContentType" value="application/json;charset=UTF-8"></property>
+                <!-- 当入参json中包含 javaBean中不存在的属性时 是否返回序列化失败 -->
+                <property name="failOnUnknownProperties" value="false"></property>
+                <!--响应文本编码 -->
+                <property name="responseEncode" value="UTF-8"></property>
+                <!-- jackson核心mapper -->
                 <property name="objectMapper">
                     <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                        <!--字段规则 javaBean为驼峰  json为下划线-->
                         <property name="propertyNamingStrategy">
                             <bean class="com.fasterxml.jackson.databind.PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy"></bean>
                         </property>
+                        <!-- 日期格式化规则 -->
                         <property name="dateFormat">
                             <bean class="java.text.SimpleDateFormat">
                                 <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/>
                             </bean>
                         </property>
+                        <!-- 序列化为json时忽略 值为null的字段 -->
+                        <property name="serializationInclusion">
+                            <value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
+                        </property>
                     </bean>
                 </property>
+                <!-- 要处理的header类型 -->
                 <property name="supportedMediaTypes">
                     <list>
                         <value>text/html;charset=UTF-8</value>
                         <value>application/json;charset=UTF-8</value>
                     </list>
                 </property>
-                <property name="contentType" value="application/json;charset=UTF-8"></property>
-                <property name="inputDateFormart" value="yyyy-MM-dd HH:mm:ss"></property>
             </bean>
         </mvc:message-converters>
     </mvc:annotation-driven>
@@ -58,8 +72,6 @@
         <property name="contentType" value="application/json;charset=UTF-8"></property>
         <property name="encode" value="UTF-8"></property>
     </bean>
-
-    <!-- 激活自动代理功能-->
-    <aop:aspectj-autoproxy proxy-target-class="true"/>
-
+    <!-- 引入commons-log中的配置文件-->
+    <import resource="classpath*:config/spring-log.xml"></import>
 </beans>

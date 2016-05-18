@@ -15,7 +15,17 @@ public class DemoVO extends ResponseHeader{
 
     private String photoCode;
 
+    private String userName;
+
     private Date createDate = new Date();
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public Date getCreateDate() {
         return createDate;
