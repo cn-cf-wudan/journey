@@ -13,7 +13,7 @@
     </bean>
 
     <!-- redis集群配置 -->
-    <bean id="redisDao" class="org.journey.dao.redis.achieve.RedisDao">
+    <bean id="redisDao" class="org.journey.dao.redis.achieve.impl.RedisDaoImplCluster" destroy-method="close">
         <constructor-arg>
             <set>
                 <bean class="redis.clients.jedis.HostAndPort">
@@ -67,9 +67,9 @@
             </set>
         </constructor-arg>
         <!--超时时间-->
-        <constructor-arg>
-            <value>5000</value>
-        </constructor-arg>
+        <constructor-arg value="5000"/>
+        <!-- 失败重试次数 这里有6个机器 所以这里给5 -->
+        <constructor-arg value="5" />
         <!-- 连接池 -->
         <constructor-arg ref="genericObjectPoolConfig"/>
     </bean>

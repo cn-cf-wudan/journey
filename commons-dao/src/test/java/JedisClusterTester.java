@@ -1,6 +1,4 @@
-import com.google.gson.Gson;
-import org.journey.dao.redis.achieve.RedisDao;
-import org.journey.po.demo.share.DEUser;
+import org.journey.dao.redis.achieve.IRedisDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,11 +19,14 @@ import javax.annotation.Resource;
 public class JedisClusterTester {
 
     @Resource
-    RedisDao redisDao;
+    IRedisDao redisDao;
 
     @Test
     public void cluster() throws Exception {
-       DEUser deUser = new DEUser();
+
+        //System.out.println(redisDao.flushDB());
+
+       //DEUser deUser = new DEUser();
         /* deUser.setId(1);
         deUser.setUserName("吴丹 小");
         deUser.setCreateTime(new Date());
@@ -33,10 +34,11 @@ public class JedisClusterTester {
 
         System.out.println(redisDao.bset(deUser));
 */
-        deUser = redisDao.bget(1 + "", DEUser.class);
+       // deUser = redisDao.bget(1 + "", DEUser.class);
 
-        System.out.println(new Gson().toJson(deUser));
+       // System.out.println(new Gson().toJson(deUser));
 
+        //System.out.println(redisDao.set("111", "2222"));
         //System.out.println(redisDao.bincrBy(DEUser.class, 1+"", DEUser.VERSION_FIELD_NAME, 1l));
 
         //System.out.println(redisDao.bincrByFloat(DEUser.class, 1+"", DEUser.CURRENT_ACCOUNT_FIELD_NAME, 1d));

@@ -29,7 +29,7 @@ public class AopLog {
     private static Logger logger = LoggerFactory.getLogger(AopLog.class);
     private static Logger slowLogger = LoggerFactory.getLogger("slowLog");//慢日志
 
-    private final String CUT = "execution (* org.journey..*.service.impl.*.*(..))";//切点表达式
+    private final String CUT = "execution (* org.journey..*.service.*.*(..))";//切点表达式
 
     /**
      * @param pjp 连接点对象

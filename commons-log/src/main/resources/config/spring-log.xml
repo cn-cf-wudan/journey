@@ -18,6 +18,5 @@
     </context:component-scan>
 
     <!-- 激活自动代理功能-->
-    <aop:aspectj-autoproxy/>
-
+    <aop:aspectj-autoproxy expose-proxy="true"/>
 </beans>

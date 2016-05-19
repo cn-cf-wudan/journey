@@ -65,6 +65,7 @@ public class MyMappingJackson2HttpMessageConverter extends MappingJackson2HttpMe
     public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, failOnUnknownProperties);
+
         /**
          * 取出requestBody中内容
          * 目前只是做简单的打印

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal">
+            <value>10</value>
+        </property>
+        <!--最大空闲连接数，默认8个-->
+        <property name="maxIdle">
+            <value>10</value>
+        </property>
+        <property name="maxWaitMillis">
+            <value>-1</value>
+        </property>
+        <property name="testOnBorrow">
+            <value>true</value>
+        </property>
+        <property name="testOnReturn">
+            <value>true</value>
+        </property>
+    </bean>
+
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg ref="jedisPoolConfig"></constructor-arg>
+        <constructor-arg value="127.0.0.1"></constructor-arg>
+        <constructor-arg value="6379"></constructor-arg>
+        <constructor-arg value="5000"></constructor-arg>
+        <constructor-arg value="wudan1989"></constructor-arg>
+    </bean>
+
+    <bean id="redisDao" class="org.journey.dao.redis.achieve.impl.RedisDaoImplSingle" destroy-method="close">
+        <constructor-arg ref="jedisPool"></constructor-arg>
+        <constructor-arg value="3"></constructor-arg>
+    </bean>
+
+</beans>

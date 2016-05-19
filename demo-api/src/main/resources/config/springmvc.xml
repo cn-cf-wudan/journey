@@ -57,8 +57,8 @@
     </mvc:annotation-driven>
 
 
-    <!-- 默认handler
-    <mvc:default-servlet-handler /> -->
+    <!-- 默认handler -->
+    <mvc:default-servlet-handler />
 
     <!-- SpringMVC上传文件时，需要配置MultipartResolver处理器-->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
@@ -72,6 +72,5 @@
         <property name="contentType" value="application/json;charset=UTF-8"></property>
         <property name="encode" value="UTF-8"></property>
     </bean>
-    <!-- 引入commons-log中的配置文件-->
-    <import resource="classpath*:config/spring-log.xml"></import>
+
 </beans>

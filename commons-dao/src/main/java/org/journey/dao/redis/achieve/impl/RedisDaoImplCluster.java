@@ -1,8 +1,9 @@
-package org.journey.dao.redis.achieve;
+package org.journey.dao.redis.achieve.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.journey.dao.redis.achieve.IRedisDao;
 import org.journey.dao.redis.annotation.NotInRedis;
 import org.journey.dao.redis.annotation.RedisDateFormat;
 import org.journey.dao.redis.util.RedisConstant;
@@ -24,81 +25,73 @@ import java.util.Set;
 /**
  * @author wudan-mac
  * @ClassName: RedisDaoImpl
- * @ClassNameExplain:
+ * @ClassNameExplain: redisDao的集群实现
  * @Description:
  * @date 16/5/16 下午7:47
  */
-public class RedisDao extends JedisCluster {
+public class RedisDaoImplCluster extends JedisCluster implements IRedisDao{
 
-    Logger logger = LoggerFactory.getLogger(RedisDao.class);
+    Logger logger = LoggerFactory.getLogger(RedisDaoImplCluster.class);
 
     Gson gson = new Gson();
 
-    public RedisDao(HostAndPort node) {
+    public RedisDaoImplCluster(HostAndPort node) {
         super(node);
     }
 
-    public RedisDao(HostAndPort node, int timeout) {
+    public RedisDaoImplCluster(HostAndPort node, int timeout) {
         super(node, timeout);
     }
 
-    public RedisDao(HostAndPort node, int timeout, int maxRedirections) {
+    public RedisDaoImplCluster(HostAndPort node, int timeout, int maxRedirections) {
         super(node, timeout, maxRedirections);
     }
 
-    public RedisDao(HostAndPort node, GenericObjectPoolConfig poolConfig) {
+    public RedisDaoImplCluster(HostAndPort node, GenericObjectPoolConfig poolConfig) {
         super(node, poolConfig);
     }
 
-    public RedisDao(HostAndPort node, int timeout, GenericObjectPoolConfig poolConfig) {
+    public RedisDaoImplCluster(HostAndPort node, int timeout, GenericObjectPoolConfig poolConfig) {
         super(node, timeout, poolConfig);
     }
 
-    public RedisDao(HostAndPort node, int timeout, int maxRedirections, GenericObjectPoolConfig poolConfig) {
+    public RedisDaoImplCluster(HostAndPort node, int timeout, int maxRedirections, GenericObjectPoolConfig poolConfig) {
         super(node, timeout, maxRedirections, poolConfig);
     }
 
-    public RedisDao(HostAndPort node, int connectionTimeout, int soTimeout, int maxRedirections, GenericObjectPoolConfig poolConfig) {
+    public RedisDaoImplCluster(HostAndPort node, int connectionTimeout, int soTimeout, int maxRedirections, GenericObjectPoolConfig poolConfig) {
         super(node, connectionTimeout, soTimeout, maxRedirections, poolConfig);
     }
 
-    public RedisDao(Set<HostAndPort> nodes) {
+    public RedisDaoImplCluster(Set<HostAndPort> nodes) {
         super(nodes);
     }
 
-    public RedisDao(Set<HostAndPort> nodes, int timeout) {
+    public RedisDaoImplCluster(Set<HostAndPort> nodes, int timeout) {
         super(nodes, timeout);
     }
 
-    public RedisDao(Set<HostAndPort> nodes, int timeout, int maxRedirections) {
+    public RedisDaoImplCluster(Set<HostAndPort> nodes, int timeout, int maxRedirections) {
         super(nodes, timeout, maxRedirections);
     }
 
-    public RedisDao(Set<HostAndPort> nodes, GenericObjectPoolConfig poolConfig) {
+    public RedisDaoImplCluster(Set<HostAndPort> nodes, GenericObjectPoolConfig poolConfig) {
         super(nodes, poolConfig);
     }
 
-    public RedisDao(Set<HostAndPort> nodes, int timeout, GenericObjectPoolConfig poolConfig) {
+    public RedisDaoImplCluster(Set<HostAndPort> nodes, int timeout, GenericObjectPoolConfig poolConfig) {
         super(nodes, timeout, poolConfig);
     }
 
-    public RedisDao(Set<HostAndPort> jedisClusterNode, int timeout, int maxRedirections, GenericObjectPoolConfig poolConfig) {
+    public RedisDaoImplCluster(Set<HostAndPort> jedisClusterNode, int timeout, int maxRedirections, GenericObjectPoolConfig poolConfig) {
         super(jedisClusterNode, timeout, maxRedirections, poolConfig);
     }
 
-    public RedisDao(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout, int maxRedirections, GenericObjectPoolConfig poolConfig) {
+    public RedisDaoImplCluster(Set<HostAndPort> jedisClusterNode, int connectionTimeout, int soTimeout, int maxRedirections, GenericObjectPoolConfig poolConfig) {
         super(jedisClusterNode, connectionTimeout, soTimeout, maxRedirections, poolConfig);
     }
 
-    /**
-     * @param bean java对象
-     * @return java.lang.String 成功返回 OK
-     * @Title: setBean
-     * @TitleExplain:
-     * @Description: 向redis写入一个javaBean 以map的形式存储
-     * @version 1.0.0
-     * @author wudan-mac
-     */
+
     public String bset(Object bean) throws Exception {
 
         if (bean == null) {
@@ -181,16 +174,6 @@ public class RedisDao extends JedisCluster {
         return hmset(key, poMap);
     }
 
-    /**
-     * @param keySuffix 要查询redis结构的key后缀
-     * @param clazz     要返回的实体对象类型
-     * @return T 传入的实体对象类型
-     * @Title: getObject
-     * @TitleExplain:
-     * @Description: 获取redis中一个po实体信息
-     * @version 1.0.0
-     * @author wudan-mac
-     */
     public <T> T bget(String keySuffix, Class<T> clazz) throws Exception {
 
         if (keySuffix == null || clazz == null) {
@@ -251,18 +234,6 @@ public class RedisDao extends JedisCluster {
 
     }
 
-    /**
-     * @param clazz java bean 类型
-     * @param keySuffix key后缀
-     * @param field    要自增的字段
-     * @param value    要自增的值(增量)
-     * @return Long 自增后的值
-     * @Title: bincrBy
-     * @TitleExplain:
-     * @Description: 将redis hash map 转java 对象 取出
-     * @version 1.0.0
-     * @author wudan-mac
-     */
     public Long bincrBy(Class clazz, String keySuffix, String field , Long value) throws Exception {
 
         if (keySuffix == null || clazz == null || field == null || value == null) {
@@ -284,18 +255,6 @@ public class RedisDao extends JedisCluster {
         return hincrBy(key, field, value);
     }
 
-    /**
-     * @param clazz java bean 类型
-     * @param keySuffix key后缀
-     * @param field    要自增的字段
-     * @param value    要自增的值(增量)
-     * @return Double 自增后的值
-     * @Title: bincrByFloat
-     * @TitleExplain:
-     * @Description: 将redis hash map 转java 对象 取出
-     * @version 1.0.0
-     * @author wudan-mac
-     */
     public Double bincrByFloat(Class clazz, String keySuffix, String field , Double value) throws Exception {
 
         if (keySuffix == null || clazz == null || field == null || value == null) {
