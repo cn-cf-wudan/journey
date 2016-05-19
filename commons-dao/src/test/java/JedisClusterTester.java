@@ -27,16 +27,16 @@ public class JedisClusterTester {
         //System.out.println(redisDao.flushDB());
 
        //DEUser deUser = new DEUser();
-        /* deUser.setId(1);
+        /*deUser.setId(1);
         deUser.setUserName("吴丹 小");
         deUser.setCreateTime(new Date());
-        deUser.setCurrentAccount(200d);
+        deUser.setCurrentAccount(200d);*/
 
-        System.out.println(redisDao.bset(deUser));
-*/
-       // deUser = redisDao.bget(1 + "", DEUser.class);
+        //System.out.println(redisDao.bset(deUser));
 
-       // System.out.println(new Gson().toJson(deUser));
+        //deUser = redisDao.bget(1 + "", DEUser.class);
+
+       //System.out.println(new Gson().toJson(deUser));
 
         //System.out.println(redisDao.set("111", "2222"));
         //System.out.println(redisDao.bincrBy(DEUser.class, 1+"", DEUser.VERSION_FIELD_NAME, 1l));

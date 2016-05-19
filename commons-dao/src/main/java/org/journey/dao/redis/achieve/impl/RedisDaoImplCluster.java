@@ -1,24 +1,13 @@
 package org.journey.dao.redis.achieve.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.journey.dao.redis.achieve.IRedisDao;
-import org.journey.dao.redis.annotation.NotInRedis;
-import org.journey.dao.redis.annotation.RedisDateFormat;
 import org.journey.dao.redis.util.RedisConstant;
 import org.journey.dao.redis.util.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.exceptions.JedisDataException;
-import redis.clients.util.JedisClusterCRC16;
 
-import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,10 +19,6 @@ import java.util.Set;
  * @date 16/5/16 下午7:47
  */
 public class RedisDaoImplCluster extends JedisCluster implements IRedisDao{
-
-    Logger logger = LoggerFactory.getLogger(RedisDaoImplCluster.class);
-
-    Gson gson = new Gson();
 
     public RedisDaoImplCluster(HostAndPort node) {
         super(node);
@@ -93,85 +78,11 @@ public class RedisDaoImplCluster extends JedisCluster implements IRedisDao{
 
 
     public String bset(Object bean) throws Exception {
-
-        if (bean == null) {
-            throw new JedisDataException("bean sent to redis cannot be null");
-        }
-
-        //根据java bean 注解获得对应javabean的存储键
-        final String key = Reflections.getRedisKey(bean);
-        if (StringUtils.isEmpty(String.valueOf(key))) {
-            throw new JedisDataException("bean key to redis cannot be null");
-        }
-
-        //用来存储全部字段的map
-        final Map<String, String> poMap = new HashMap();
-
-        //反射获得对应javabean 的class对象
-        Class clazz = bean.getClass();
-        //取得全部字段
-        Field[] fields = clazz.getDeclaredFields();
-        //循环处理字段
-        for (Field field : fields) {
-
-            /**
-             * 排除序列化id
-             */
-            if (RedisConstant.SERIAL_VERSION_UID_FIELD_NAME.equals(field.getName())) {
-                continue;
-            }
-
-            /**
-             * 排除key 前缀字段
-             */
-            if (RedisConstant.REDIS_KEY_PREFIX_FIELD_NAME.equals(field.getName())) {
-                continue;
-            }
-
-            /**
-             * 如果该字段被标注不写入redis 则跳过
-             */
-            if (field.getAnnotation(NotInRedis.class) != null) {
-                continue;
-            }
-
-            /**
-             * 反射get方法获取属性值
-             */
-            Object tempValueObject;
-            tempValueObject = Reflections.invokeGetter(bean, field.getName());
-            if (tempValueObject == null) {
-                continue;
-            }
-
-            /**
-             * 判断字段类型是否为基本类型
-             * 是 直接写入字段值
-             * 不是  json序列化后写入json
-             */
-            String value = "";
-            if (!field.getType().isPrimitive()) {
-
-                /**
-                 * 如果该字段标注了日期格式注解 则按注解格式进行json序列化
-                 */
-                if (field.getType().equals(Date.class) && field.getAnnotation(RedisDateFormat.class) != null) {
-                    Gson gsonTemp = new GsonBuilder().setDateFormat(field.getAnnotation(RedisDateFormat.class).pattern()).create();
-                    value = gsonTemp.toJson(tempValueObject);
-                } else {
-                    value = gson.toJson(tempValueObject);
-                }
-            } else {
-                value = tempValueObject.toString();
-            }
-            poMap.put(field.getName(), value);
-        }
-
+        Map<String, Object> map = Reflections.getRedisHashFromBean(bean);
         /**
          * 执行写入
          */
-        logger.debug("where is key[" + key + " : " + JedisClusterCRC16.getSlot(key) + "]");
-        return hmset(key, poMap);
+        return hmset((String)map.get("key"), (Map)map.get("poMap"));
     }
 
     public <T> T bget(String keySuffix, Class<T> clazz) throws Exception {
@@ -189,48 +100,10 @@ public class RedisDaoImplCluster extends JedisCluster implements IRedisDao{
             key = key + RedisConstant.REDIS_KEY_SEPARATOR + keySuffix;
         }
 
-        //实例化返回的对象
-        result = clazz.newInstance();
-
-        //取得全部字段
-        Field[] fields = clazz.getDeclaredFields();
-
         //获取redis Map
         Map<String, String> map = hgetAll(key);
 
-        /**
-         * 将取得的hashmap对象转化为java对象
-         */
-        Object value;
-        for (Field field : fields) {
-
-            /**
-             * 如果该字段被标注不写入redis 则跳过
-             */
-            if (field.getAnnotation(NotInRedis.class) != null) {
-                continue;
-            }
-
-            String valueInMap = map.get(field.getName());
-            /*if (field.getType().equals(String.class)) {
-                //这样做是为了解决字符串中出现  空格等特殊字符引起的 json反序列化错误
-                value = gson.fromJson("\"" + valueInMap + "\"", field.getType());
-            } else */
-            if (field.getType().equals(Date.class)) {
-                //如果是日期类型 则按照注解格式反序列化
-                Gson gsonTemp = new GsonBuilder().setDateFormat(field.getAnnotation(RedisDateFormat.class).pattern()).create();
-                value = gsonTemp.fromJson(valueInMap, field.getType());
-            } else {
-                value = gson.fromJson(valueInMap, field.getType());
-            }
-            //设置当前字段的值
-            Reflections.invokeSetter(
-                    result,
-                    field.getName(),
-                    value
-            );
-        }
-        return result;
+        return Reflections.getBeanFromRedisHash(map, clazz);
 
     }
 

@@ -34,7 +34,7 @@ public class DEUser {
     private Long version;
 
     //创建日期
-    @RedisDateFormat(pattern = "yyyy-MM-dd")
+    @RedisDateFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     public Long getVersion() {
@@ -75,5 +75,16 @@ public class DEUser {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    @Override
+    public String toString() {
+        return "DEUser{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", currentAccount=" + currentAccount +
+                ", version=" + version +
+                ", createTime=" + createTime +
+                '}';
     }
 }

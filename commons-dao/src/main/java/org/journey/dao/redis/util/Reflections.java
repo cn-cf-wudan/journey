@@ -1,12 +1,23 @@
 package org.journey.dao.redis.util;
 
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.journey.dao.redis.annotation.NotInRedis;
+import org.journey.dao.redis.annotation.RedisDateFormat;
 import org.journey.dao.redis.annotation.RedisKeySuffix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author wudan-mac
@@ -16,6 +27,10 @@ import java.lang.reflect.Method;
  * @date 16/4/9 下午2:55
  */
 public class Reflections {
+
+    static Logger logger = LoggerFactory.getLogger(Reflections.class);
+
+    static Gson gson = new Gson();
 
     /**
      * @param object    要反射的对象
@@ -118,5 +133,151 @@ public class Reflections {
             }
         }
         return value;
+    }
+
+    /**
+     * @param bean 传入的bean
+     * @return java.util.Map<java.lang.String,java.lang.Object>
+     * key    redis键
+     * poMap  redis  HashMap
+     * @Title: getRedisHashFromBean
+     * @TitleExplain:
+     * @Description: 将传入的bean转成reidsHashMap
+     * @version 1.0.0
+     * @author wudan-mac
+     */
+    public static Map<String, Object> getRedisHashFromBean(Object bean) throws Exception {
+
+        if (bean == null) {
+            throw new JedisDataException("bean sent to redis cannot be null");
+        }
+
+        //根据java bean 注解获得对应javabean的存储键
+        final String key = getRedisKey(bean);
+        if (StringUtils.isEmpty(String.valueOf(key))) {
+            throw new JedisDataException("bean key to redis cannot be null");
+        }
+
+        //用来存储全部字段的map
+        final Map<String, String> poMap = new HashMap();
+
+        //反射获得对应javabean 的class对象
+        Class clazz = bean.getClass();
+        //取得全部字段
+        Field[] fields = clazz.getDeclaredFields();
+        //循环处理字段
+        for (Field field : fields) {
+
+            /**
+             * 排除序列化id
+             */
+            if (RedisConstant.SERIAL_VERSION_UID_FIELD_NAME.equals(field.getName())) {
+                continue;
+            }
+
+            /**
+             * 排除key 前缀字段
+             */
+            if (RedisConstant.REDIS_KEY_PREFIX_FIELD_NAME.equals(field.getName())) {
+                continue;
+            }
+
+            /**
+             * 如果该字段被标注不写入redis 则跳过
+             */
+            if (field.getAnnotation(NotInRedis.class) != null) {
+                continue;
+            }
+
+            /**
+             * 反射get方法获取属性值
+             */
+            Object tempValueObject;
+            tempValueObject = Reflections.invokeGetter(bean, field.getName());
+            if (tempValueObject == null) {
+                continue;
+            }
+
+            /**
+             * 判断字段类型是否为基本类型
+             * 是 直接写入字段值
+             * 不是  json序列化后写入json
+             */
+            String value = "";
+            if (!field.getType().isPrimitive()) {
+
+                /**
+                 * 如果该字段标注了日期格式注解 则按注解格式进行json序列化
+                 */
+                if (field.getType().equals(Date.class) && field.getAnnotation(RedisDateFormat.class) != null) {
+                    Gson gsonTemp = new GsonBuilder().setDateFormat(field.getAnnotation(RedisDateFormat.class).pattern()).create();
+                    value = gsonTemp.toJson(tempValueObject);
+                } else {
+                    value = gson.toJson(tempValueObject);
+                }
+            } else {
+                value = tempValueObject.toString();
+            }
+            poMap.put(field.getName(), value);
+        }
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("key", key);
+        resultMap.put("poMap", poMap);
+
+        return resultMap;
+    }
+
+    /**
+     * @Title: getBeanFromRedisHash
+     * @TitleExplain:
+     * @Description: 将传入的redisHashMap  转换成 javaBean
+     * @param map redis Hash
+     * @param clazz 要转换成的javaBean 类型
+     * @return T JavaBean对像
+     * @version 1.0.0
+     * @author wudan-mac
+     */
+    public static <T> T getBeanFromRedisHash(Map<String, String> map, Class<T> clazz) throws Exception {
+
+        //实例化返回的对象
+        T result = clazz.newInstance();
+
+        //取得全部字段
+        Field[] fields = clazz.getDeclaredFields();
+
+        /**
+         * 将取得的hashmap对象转化为java对象
+         */
+        Object value;
+        for (Field field : fields) {
+
+            /**
+             * 如果该字段被标注不写入redis 则跳过
+             */
+            if (field.getAnnotation(NotInRedis.class) != null) {
+                continue;
+            }
+
+            String valueInMap = map.get(field.getName());
+            /*if (field.getType().equals(String.class)) {
+                //这样做是为了解决字符串中出现  空格等特殊字符引起的 json反序列化错误
+                value = gson.fromJson("\"" + valueInMap + "\"", field.getType());
+            } else */
+            if (field.getType().equals(Date.class)) {
+                //如果是日期类型 则按照注解格式反序列化
+                Gson gsonTemp = new GsonBuilder().setDateFormat(field.getAnnotation(RedisDateFormat.class).pattern()).create();
+                value = gsonTemp.fromJson(valueInMap, field.getType());
+            } else {
+                value = gson.fromJson(valueInMap, field.getType());
+            }
+            //设置当前字段的值
+            Reflections.invokeSetter(
+                    result,
+                    field.getName(),
+                    value
+            );
+        }
+        return result;
     }
 }

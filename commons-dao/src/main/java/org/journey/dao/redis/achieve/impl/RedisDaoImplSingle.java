@@ -3,7 +3,10 @@ package org.journey.dao.redis.achieve.impl;
 import org.journey.dao.redis.achieve.IRedisDao;
 import org.journey.dao.redis.extend.JedisSingleCommand;
 import org.journey.dao.redis.extend.JedisSingleConnectionHandler;
+import org.journey.dao.redis.util.RedisConstant;
+import org.journey.dao.redis.util.Reflections;
 import redis.clients.jedis.*;
+import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.params.geo.GeoRadiusParam;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
@@ -39,22 +42,76 @@ public class RedisDaoImplSingle implements IRedisDao {
 
     @Override
     public String bset(Object bean) throws Exception {
-        return null;
+        Map<String, Object> map = Reflections.getRedisHashFromBean(bean);
+        /**
+         * 执行写入
+         */
+        return hmset((String)map.get("key"), (Map)map.get("poMap"));
     }
 
     @Override
     public <T> T bget(String keySuffix, Class<T> clazz) throws Exception {
-        return null;
+        if (keySuffix == null || clazz == null) {
+            throw new JedisDataException("get bean param cannot be null");
+        }
+        T result = null;
+        /**
+         * 拼接key
+         */
+        String className = clazz.getName();
+        String key = className.substring(className.lastIndexOf(".") + 1, className.length());
+        if (!"".equals(keySuffix)) {
+            key = key + RedisConstant.REDIS_KEY_SEPARATOR + keySuffix;
+        }
+
+        //获取redis Map
+        Map<String, String> map = hgetAll(key);
+
+        return Reflections.getBeanFromRedisHash(map, clazz);
     }
 
     @Override
     public Long bincrBy(Class clazz, String keySuffix, String field, Long value) throws Exception {
-        return null;
+
+        if (keySuffix == null || clazz == null || field == null || value == null) {
+            throw new JedisDataException("bincrBy bean field param cannot be null");
+        }
+
+        /**
+         * 拼接key
+         */
+        String className = clazz.getName();
+        String key = className.substring(className.lastIndexOf(".") + 1, className.length());
+        if (!"".equals(keySuffix)) {
+            key = key + RedisConstant.REDIS_KEY_SEPARATOR + keySuffix;
+        }
+
+        /**
+         * 执行增长或减少
+         */
+        return hincrBy(key, field, value);
     }
 
     @Override
     public Double bincrByFloat(Class clazz, String keySuffix, String field, Double value) throws Exception {
-        return null;
+
+        if (keySuffix == null || clazz == null || field == null || value == null) {
+            throw new JedisDataException("bincrBy bean field param cannot be null");
+        }
+
+        /**
+         * 拼接key
+         */
+        String className = clazz.getName();
+        String key = className.substring(className.lastIndexOf(".") + 1, className.length());
+        if (!"".equals(keySuffix)) {
+            key = key + RedisConstant.REDIS_KEY_SEPARATOR + keySuffix;
+        }
+
+        /**
+         * 执行增长或减少
+         */
+        return hincrByFloat(key, field, value);
     }
 
     @Override
