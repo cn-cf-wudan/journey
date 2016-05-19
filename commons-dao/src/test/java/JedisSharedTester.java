@@ -1,5 +1,3 @@
-package org.journey.dao.redis.extend;
-
 import org.journey.dao.redis.achieve.IRedisDao;
 import org.journey.po.demo.share.DEUser;
 import org.junit.Test;
@@ -28,7 +26,7 @@ public class JedisSharedTester {
         /*for (int i=0;i<10000;i++){
             System.out.println(redisDao.set("key:"+i, "啊"+i));
         }*/
-       // System.out.println(redisDao.flushAll());
+        // System.out.println(redisDao.flushAll());
 
         DEUser deUser = new DEUser();
         /*deUser.setId(1);
