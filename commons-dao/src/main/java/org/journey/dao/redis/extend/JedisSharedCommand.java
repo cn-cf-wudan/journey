@@ -1,6 +1,6 @@
 package org.journey.dao.redis.extend;
 
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.exceptions.JedisClusterMaxRedirectionsException;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;
@@ -9,18 +9,18 @@ import redis.clients.jedis.exceptions.JedisException;
  * @author wudan-mac
  * @ClassName: JedisSingleCommand
  * @ClassNameExplain:
- * @Description: 单节点jedis命令执行器
+ * @Description: 分片jedis命令执行器
  * @date 16/5/18 下午6:47
  */
-public abstract class JedisSingleCommand<T> {
+public abstract class JedisSharedCommand<T> {
 
     //单节点链接处理器
-    private JedisSingleConnectionHandler connectionHandler;
+    private JedisSharedConnectionHandler connectionHandler;
 
     //链接失败时的重试次数
     private int redirections;
 
-    public JedisSingleCommand(JedisSingleConnectionHandler connectionHandler, int redirections) {
+    public JedisSharedCommand(JedisSharedConnectionHandler connectionHandler, int redirections) {
         this.connectionHandler = connectionHandler;
         this.redirections = redirections;
     }
@@ -34,7 +34,7 @@ public abstract class JedisSingleCommand<T> {
      * @version 1.0.0
      * @author wudan-mac
      */
-    public abstract T execute(Jedis var1);
+    public abstract T execute(ShardedJedis var1);
 
     /**
      * @param key
@@ -42,7 +42,7 @@ public abstract class JedisSingleCommand<T> {
      */
     public T run(String key) {
         if (key == null) {
-            throw new JedisException("No way to dispatch this command to Redis Single.");
+            throw new JedisException("No way to dispatch this command to Redis Shared.");
         } else {
             return this.runWithRetries(this.redirections);
         }
@@ -62,10 +62,11 @@ public abstract class JedisSingleCommand<T> {
      * @author wudan-mac
      */
     private T runWithRetries(int redirections) {
+
         if (redirections <= 0) {
-            throw new JedisClusterMaxRedirectionsException("Too many Single redirections?");
+            throw new JedisClusterMaxRedirectionsException("Too many Shared redirections?");
         } else {
-            Jedis connection = null;
+            ShardedJedis connection = null;
             Object result;
             try {
                 connection = this.connectionHandler.getConnection();
@@ -98,7 +99,8 @@ public abstract class JedisSingleCommand<T> {
      * @version 1.0.0
      * @author wudan-mac
      */
-    private void releaseConnection(Jedis connection) {
+    private void releaseConnection(ShardedJedis connection) {
+
         if (connection != null) {
             connection.close();
         }

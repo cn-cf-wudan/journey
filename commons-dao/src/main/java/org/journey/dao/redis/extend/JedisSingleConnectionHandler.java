@@ -18,7 +18,7 @@ public class JedisSingleConnectionHandler {
         this.jedisPool = jedisPool;
     }
 
-    public Jedis getConnection(){
+    public synchronized Jedis getConnection(){
         return jedisPool.getResource();
     }
 
@@ -26,7 +26,4 @@ public class JedisSingleConnectionHandler {
         return jedisPool;
     }
 
-    public void setJedisPool(JedisPool jedisPool) {
-        this.jedisPool = jedisPool;
-    }
 }
