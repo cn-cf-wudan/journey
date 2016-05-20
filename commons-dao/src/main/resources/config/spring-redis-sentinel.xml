@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
@@ -23,35 +22,21 @@
         </property>
     </bean>
 
-    <bean id="jedisShardInfo1" class="redis.clients.jedis.JedisShardInfo">
-        <constructor-arg name="host" value="127.0.0.1">
+    <bean id="jedisPool" class="redis.clients.jedis.JedisSentinelPool">
+        <constructor-arg value="master8379"/>
+        <constructor-arg>
+            <set>
+                <value>127.0.0.1:26379</value>
+            </set>
         </constructor-arg>
-        <constructor-arg name="port" value="7379">
-        </constructor-arg>
-        <property name="password" value="wudan1989"></property>
-    </bean>
-
-    <bean id="jedisShardInfo2" class="redis.clients.jedis.JedisShardInfo">
-        <constructor-arg name="host" value="127.0.0.1">
-        </constructor-arg>
-        <constructor-arg name="port" value="7380">
-        </constructor-arg>
-        <property name="password" value="wudan1989"></property>
-    </bean>
-
-    <bean id="sharedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
         <constructor-arg ref="jedisPoolConfig"/>
-        <constructor-arg >
-            <list>
-                <ref bean="jedisShardInfo1"></ref>
-                <ref bean="jedisShardInfo2"></ref>
-            </list>
-        </constructor-arg>
+        <constructor-arg value="5000"/>
+        <constructor-arg value="wudan1989"/>
     </bean>
 
-    <bean id="redisDao" class="org.journey.dao.redis.achieve.impl.RedisDaoImplShared" destroy-method="close">
-        <constructor-arg ref="sharedJedisPool"/>
-        <constructor-arg value="3"/>
+    <bean id="redisDao" class="org.journey.dao.redis.achieve.impl.RedisDaoImplSentinel" destroy-method="close">
+        <constructor-arg ref="jedisPool"></constructor-arg>
+        <constructor-arg value="3"></constructor-arg>
     </bean>
 
 </beans>

@@ -1,5 +1,4 @@
 import org.journey.dao.redis.achieve.IRedisDao;
-import org.journey.po.demo.share.DEUser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -36,9 +35,9 @@ public class JedisSingleTester {
         //deUser = redisDao.bget(1+"", DEUser.class);
         //System.out.println(deUser);
 
-        System.out.println(redisDao.bincrBy(DEUser.class, 1+"", DEUser.VERSION_FIELD_NAME, 1l));
+       // System.out.println(redisDao.bincrBy(DEUser.class, 1+"", DEUser.VERSION_FIELD_NAME, 1l));
 
-        System.out.println(redisDao.bincrByFloat(DEUser.class, 1+"", DEUser.CURRENT_ACCOUNT_FIELD_NAME, 1d));
+       // System.out.println(redisDao.bincrByFloat(DEUser.class, 1+"", DEUser.CURRENT_ACCOUNT_FIELD_NAME, 1d));
 
     }
 }

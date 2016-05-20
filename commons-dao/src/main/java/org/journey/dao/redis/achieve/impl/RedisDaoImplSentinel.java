@@ -1,13 +1,12 @@
 package org.journey.dao.redis.achieve.impl;
 
 import org.journey.dao.redis.achieve.IRedisDao;
-import org.journey.dao.redis.extend.JedisSharedCommand;
-import org.journey.dao.redis.extend.JedisSharedConnectionHandler;
+import org.journey.dao.redis.extend.JedisSentinelCommand;
+import org.journey.dao.redis.extend.JedisSentinelConnectionHandler;
 import org.journey.dao.redis.util.RedisConstant;
 import org.journey.dao.redis.util.Reflections;
 import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisDataException;
-import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.jedis.params.geo.GeoRadiusParam;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
@@ -24,20 +23,20 @@ import java.util.Set;
  * @Description:
  * @date 16/5/19 下午3:38
  */
-public class RedisDaoImplShared implements IRedisDao{
+public class RedisDaoImplSentinel implements IRedisDao{
 
     private int maxRedirections;
 
-    private JedisSharedConnectionHandler connectionHandler;
+    private JedisSentinelConnectionHandler connectionHandler;
 
-    public RedisDaoImplShared(ShardedJedisPool shardedJedisPool, int maxRedirections) {
-        this.connectionHandler = new JedisSharedConnectionHandler(shardedJedisPool);
+    public RedisDaoImplSentinel(JedisSentinelPool jedisSentinelPool, int maxRedirections) {
+        this.connectionHandler = new JedisSentinelConnectionHandler(jedisSentinelPool);
         this.maxRedirections = maxRedirections;
     }
 
     public void close() throws IOException {
-        if (this.connectionHandler != null && this.connectionHandler.getShardedJedisPool() != null) {
-            connectionHandler.getShardedJedisPool().destroy();
+        if (this.connectionHandler != null && this.connectionHandler.getJedisSentinelPool() != null) {
+            connectionHandler.getJedisSentinelPool().destroy();
         }
     }
 
@@ -117,9 +116,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String set(String key, String value) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.set(key, value);
             }
         }).run(key);
@@ -127,9 +126,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String set(String key, String value, String nxxx, String expx, long time) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.set(key, value, nxxx, expx, time);
             }
         }).run(key);
@@ -137,9 +136,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String set(String key, String value, String nxxx) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.set(key, value, nxxx);
             }
         }).run(key);
@@ -147,9 +146,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String get(String key) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.get(key);
             }
         }).run(key);
@@ -157,9 +156,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Boolean exists(String key) {
-        return (Boolean) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Boolean) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Boolean execute(ShardedJedis connection) {
+            public Boolean execute(Jedis connection) {
                 return connection.exists(key);
             }
         }).run(key);
@@ -167,9 +166,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long persist(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.persist(key);
             }
         }).run(key);
@@ -177,9 +176,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String type(String key) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.type(key);
             }
         }).run(key);
@@ -187,9 +186,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long expire(String key, int seconds) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.expire(key, seconds);
             }
         }).run(key);
@@ -197,9 +196,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long pexpire(String key, long milliseconds) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.pexpire(key, milliseconds);
             }
         }).run(key);
@@ -207,9 +206,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long expireAt(String key, long unixTime) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.expireAt(key, unixTime);
             }
         }).run(key);
@@ -217,9 +216,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long pexpireAt(String key, long millisecondsTimestamp) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.pexpireAt(key, millisecondsTimestamp);
             }
         }).run(key);
@@ -227,9 +226,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long ttl(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.ttl(key);
             }
         }).run(key);
@@ -237,9 +236,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long pttl(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.pttl(key);
             }
         }).run(key);
@@ -247,9 +246,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Boolean setbit(String key, long offset, boolean value) {
-        return (Boolean) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Boolean) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Boolean execute(ShardedJedis connection) {
+            public Boolean execute(Jedis connection) {
                 return connection.setbit(key, offset, value);
             }
         }).run(key);
@@ -257,9 +256,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Boolean setbit(String key, long offset, String value) {
-        return (Boolean) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Boolean) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Boolean execute(ShardedJedis connection) {
+            public Boolean execute(Jedis connection) {
                 return connection.setbit(key, offset, value);
             }
         }).run(key);
@@ -267,9 +266,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Boolean getbit(String key, long offset) {
-        return (Boolean) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Boolean) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Boolean execute(ShardedJedis connection) {
+            public Boolean execute(Jedis connection) {
                 return connection.getbit(key, offset);
             }
         }).run(key);
@@ -277,9 +276,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long setrange(String key, long offset, String value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.setrange(key, offset, value);
             }
         }).run(key);
@@ -287,9 +286,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String getrange(String key, long startOffset, long endOffset) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.getrange(key, startOffset, endOffset);
             }
         }).run(key);
@@ -297,9 +296,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String getSet(String key, String value) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.getSet(key, value);
             }
         }).run(key);
@@ -307,9 +306,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long setnx(String key, String value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.setnx(key, value);
             }
         }).run(key);
@@ -317,9 +316,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String setex(String key, int seconds, String value) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.setex(key, seconds, value);
             }
         }).run(key);
@@ -327,9 +326,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String psetex(String key, long milliseconds, String value) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.psetex(key, milliseconds, value);
             }
         }).run(key);
@@ -337,9 +336,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long decrBy(String key, long integer) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.decrBy(key, integer);
             }
         }).run(key);
@@ -347,9 +346,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long decr(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.decr(key);
             }
         }).run(key);
@@ -357,9 +356,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long incrBy(String key, long integer) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.incrBy(key, integer);
             }
         }).run(key);
@@ -367,9 +366,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Double incrByFloat(String key, double value) {
-        return (Double) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Double) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Double execute(ShardedJedis connection) {
+            public Double execute(Jedis connection) {
                 return connection.incrByFloat(key, value);
             }
         }).run(key);
@@ -377,9 +376,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long incr(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.incr(key);
             }
         }).run(key);
@@ -387,9 +386,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long append(String key, String value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.append(key, value);
             }
         }).run(key);
@@ -397,9 +396,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String substr(String key, int start, int end) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.substr(key, start, end);
             }
         }).run(key);
@@ -407,9 +406,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long hset(String key, String field, String value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.hset(key, field, value);
             }
         }).run(key);
@@ -417,9 +416,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String hget(String key, String field) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.hget(key, field);
             }
         }).run(key);
@@ -427,9 +426,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long hsetnx(String key, String field, String value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.hsetnx(key, field, value);
             }
         }).run(key);
@@ -437,9 +436,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String hmset(String key, Map<String, String> hash) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.hmset(key, hash);
             }
         }).run(key);
@@ -447,9 +446,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> hmget(String key, String... fields) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.hmget(key, fields);
             }
         }).run(key);
@@ -457,9 +456,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long hincrBy(String key, String field, long value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.hincrBy(key, field, value);
             }
         }).run(key);
@@ -467,9 +466,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Double hincrByFloat(String key, String field, double value) {
-        return (Double) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Double) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Double execute(ShardedJedis connection) {
+            public Double execute(Jedis connection) {
                 return connection.hincrByFloat(key, field, value);
             }
         }).run(key);
@@ -477,9 +476,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Boolean hexists(String key, String field) {
-        return (Boolean) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Boolean) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Boolean execute(ShardedJedis connection) {
+            public Boolean execute(Jedis connection) {
                 return connection.hexists(key, field);
             }
         }).run(key);
@@ -487,9 +486,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long hdel(String key, String... fields) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.hdel(key, fields);
             }
         }).run(key);
@@ -497,9 +496,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long hlen(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.hlen(key);
             }
         }).run(key);
@@ -507,9 +506,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> hkeys(String key) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.hkeys(key);
             }
         }).run(key);
@@ -517,9 +516,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> hvals(String key) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.hvals(key);
             }
         }).run(key);
@@ -527,9 +526,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Map<String, String> hgetAll(String key) {
-        return (Map<String, String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Map<String, String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Map<String, String> execute(ShardedJedis connection) {
+            public Map<String, String> execute(Jedis connection) {
                 return connection.hgetAll(key);
             }
         }).run(key);
@@ -537,9 +536,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long rpush(String key, String... strings) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.rpush(key, strings);
             }
         }).run(key);
@@ -547,9 +546,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long lpush(String key, String... strings) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.lpush(key, strings);
             }
         }).run(key);
@@ -557,9 +556,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long llen(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.llen(key);
             }
         }).run(key);
@@ -567,9 +566,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> lrange(String key, long start, long end) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.lrange(key, start, end);
             }
         }).run(key);
@@ -577,9 +576,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String ltrim(String key, long start, long end) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.ltrim(key, start, end);
             }
         }).run(key);
@@ -587,9 +586,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String lindex(String key, long index) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.lindex(key, index);
             }
         }).run(key);
@@ -597,9 +596,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String lset(String key, long index, String value) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.lset(key, index, value);
             }
         }).run(key);
@@ -607,9 +606,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long lrem(String key, long index, String value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.lrem(key, index, value);
             }
         }).run(key);
@@ -617,9 +616,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String lpop(String key) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.lpop(key);
             }
         }).run(key);
@@ -627,9 +626,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String rpop(String key) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.rpop(key);
             }
         }).run(key);
@@ -637,9 +636,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long sadd(String key, String... members) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.sadd(key, members);
             }
         }).run(key);
@@ -647,9 +646,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> smembers(String key) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.smembers(key);
             }
         }).run(key);
@@ -657,9 +656,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long srem(String key, String... members) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.srem(key, members);
             }
         }).run(key);
@@ -667,9 +666,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String spop(String key) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.spop(key);
             }
         }).run(key);
@@ -677,9 +676,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> spop(String key, long count) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.spop(key, count);
             }
         }).run(key);
@@ -687,9 +686,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long scard(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.scard(key);
             }
         }).run(key);
@@ -697,9 +696,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Boolean sismember(String key, String member) {
-        return (Boolean) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Boolean) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Boolean execute(ShardedJedis connection) {
+            public Boolean execute(Jedis connection) {
                 return connection.sismember(key, member);
             }
         }).run(key);
@@ -707,9 +706,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String srandmember(String key) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.srandmember(key);
             }
         }).run(key);
@@ -717,9 +716,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> srandmember(String key, int count) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.srandmember(key, count);
             }
         }).run(key);
@@ -727,9 +726,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long strlen(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.strlen(key);
             }
         }).run(key);
@@ -737,9 +736,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zadd(String key, double score, String member) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zadd(key, score, member);
             }
         }).run(key);
@@ -747,9 +746,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zadd(String key, double score, String member, ZAddParams zAddParams) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zadd(key, score, member, zAddParams);
             }
         }).run(key);
@@ -757,9 +756,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zadd(String key, Map<String, Double> scoreMembers) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zadd(key, scoreMembers);
             }
         }).run(key);
@@ -767,9 +766,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zadd(String key, Map<String, Double> scoreMembers, ZAddParams zAddParams) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zadd(key, scoreMembers, zAddParams);
             }
         }).run(key);
@@ -777,9 +776,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrange(String key, long start, long end) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrange(key, start, end);
             }
         }).run(key);
@@ -787,9 +786,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zrem(String key, String... members) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zrem(key, members);
             }
         }).run(key);
@@ -797,9 +796,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Double zincrby(String key, double score, String member) {
-        return (Double) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Double) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Double execute(ShardedJedis connection) {
+            public Double execute(Jedis connection) {
                 return connection.zincrby(key, score, member);
             }
         }).run(key);
@@ -807,9 +806,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Double zincrby(String key, double score, String member, ZIncrByParams zIncrByParams) {
-        return (Double) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Double) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Double execute(ShardedJedis connection) {
+            public Double execute(Jedis connection) {
                 return connection.zincrby(key, score, member, zIncrByParams);
             }
         }).run(key);
@@ -817,9 +816,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zrank(String key, String member) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zrank(key, member);
             }
         }).run(key);
@@ -827,9 +826,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zrevrank(String key, String member) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zrevrank(key, member);
             }
         }).run(key);
@@ -837,9 +836,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrevrange(String key, long start, long end) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrevrange(key, start, end);
             }
         }).run(key);
@@ -847,9 +846,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrangeWithScores(String key, long start, long end) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrangeWithScores(key, start, end);
             }
         }).run(key);
@@ -857,9 +856,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrevrangeWithScores(String key, long start, long end) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrevrangeWithScores(key, start, end);
             }
         }).run(key);
@@ -867,9 +866,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zcard(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zcard(key);
             }
         }).run(key);
@@ -877,9 +876,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Double zscore(String key, String member) {
-        return (Double) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Double) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Double execute(ShardedJedis connection) {
+            public Double execute(Jedis connection) {
                 return connection.zscore(key, member);
             }
         }).run(key);
@@ -887,9 +886,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> sort(String key) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.sort(key);
             }
         }).run(key);
@@ -897,9 +896,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> sort(String key, SortingParams sortingParams) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.sort(key, sortingParams);
             }
         }).run(key);
@@ -907,9 +906,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zcount(String key, double min, double max) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zcount(key, min, max);
             }
         }).run(key);
@@ -917,9 +916,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zcount(String key, String min, String max) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zcount(key, min, max);
             }
         }).run(key);
@@ -927,9 +926,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrangeByScore(String key, double min, double max) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrangeByScore(key, min, max);
             }
         }).run(key);
@@ -937,9 +936,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrangeByScore(String key, String min, String max) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrangeByScore(key, min, max);
             }
         }).run(key);
@@ -947,9 +946,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrevrangeByScore(String key, double min, double max) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrevrangeByScore(key, min, max);
             }
         }).run(key);
@@ -957,9 +956,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrangeByScore(String key, double min, double max, int offset, int count) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrangeByScore(key, min, max, offset, count);
             }
         }).run(key);
@@ -967,9 +966,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrevrangeByScore(String key, String min, String max) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrevrangeByScore(key, min, max);
             }
         }).run(key);
@@ -977,9 +976,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrangeByScore(String key, String min, String max, int offset, int count) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrangeByScore(key, min, max, offset, count);
             }
         }).run(key);
@@ -987,9 +986,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrevrangeByScore(String key, double min, double max, int offset, int count) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrevrangeByScore(key, min, max, offset, count);
             }
         }).run(key);
@@ -997,9 +996,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrangeByScoreWithScores(String key, double min, double max) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrangeByScoreWithScores(key, min, max);
             }
         }).run(key);
@@ -1007,9 +1006,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrevrangeByScoreWithScores(String key, double min, double max) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrevrangeByScoreWithScores(key, min, max);
             }
         }).run(key);
@@ -1017,9 +1016,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrangeByScoreWithScores(String key, double min, double max, int offset, int count) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrangeByScoreWithScores(key, min, max, offset, count);
             }
         }).run(key);
@@ -1027,9 +1026,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrevrangeByScore(String key, String min, String max, int offset, int count) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrevrangeByScore(key, min, max, offset, count);
             }
         }).run(key);
@@ -1037,9 +1036,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrangeByScoreWithScores(String key, String min, String max) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrangeByScoreWithScores(key, min, max);
             }
         }).run(key);
@@ -1047,9 +1046,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrevrangeByScoreWithScores(String key, String min, String max) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrevrangeByScoreWithScores(key, min, max);
             }
         }).run(key);
@@ -1057,9 +1056,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrangeByScoreWithScores(String key, String min, String max, int offset, int count) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrangeByScoreWithScores(key, min, max, offset, count);
             }
         }).run(key);
@@ -1067,9 +1066,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrevrangeByScoreWithScores(String key, double min, double max, int offset, int count) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrevrangeByScoreWithScores(key, min, max, offset, count);
             }
         }).run(key);
@@ -1077,9 +1076,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<Tuple> zrevrangeByScoreWithScores(String key, String min, String max, int offset, int count) {
-        return (Set<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<Tuple> execute(ShardedJedis connection) {
+            public Set<Tuple> execute(Jedis connection) {
                 return connection.zrevrangeByScoreWithScores(key, min, max, offset, count);
             }
         }).run(key);
@@ -1087,9 +1086,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zremrangeByRank(String key, long start, long end) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zremrangeByRank(key, start, end);
             }
         }).run(key);
@@ -1097,9 +1096,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zremrangeByScore(String key, double min, double max) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zremrangeByScore(key, min, max);
             }
         }).run(key);
@@ -1107,9 +1106,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zremrangeByScore(String key, String min, String max) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zremrangeByScore(key, min, max);
             }
         }).run(key);
@@ -1117,9 +1116,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zlexcount(String key, String min, String max) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zlexcount(key, min, max);
             }
         }).run(key);
@@ -1127,9 +1126,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrangeByLex(String key, String min, String max) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrangeByLex(key, min, max);
             }
         }).run(key);
@@ -1137,9 +1136,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrangeByLex(String key, String min, String max, int offset, int count) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrangeByLex(key, min, max, offset, count);
             }
         }).run(key);
@@ -1147,9 +1146,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrevrangeByLex(String key, String min, String max) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrevrangeByLex(key, min, max);
             }
         }).run(key);
@@ -1157,9 +1156,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Set<String> zrevrangeByLex(String key, String min, String max, int offset, int count) {
-        return (Set<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Set<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Set<String> execute(ShardedJedis connection) {
+            public Set<String> execute(Jedis connection) {
                 return connection.zrevrangeByLex(key, min, max, offset, count);
             }
         }).run(key);
@@ -1167,9 +1166,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long zremrangeByLex(String key, String min, String max) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.zremrangeByLex(key, min, max);
             }
         }).run(key);
@@ -1177,9 +1176,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long linsert(String key, BinaryClient.LIST_POSITION where, String pivot, String value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.linsert(key, where, pivot, value);
             }
         }).run(key);
@@ -1187,9 +1186,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long lpushx(String key, String... strings) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.lpushx(key, strings);
             }
         }).run(key);
@@ -1197,9 +1196,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long rpushx(String key, String... strings) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.rpushx(key, strings);
             }
         }).run(key);
@@ -1208,9 +1207,9 @@ public class RedisDaoImplShared implements IRedisDao{
     @Override
     @Deprecated
     public List<String> blpop(String arg) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.blpop(arg);
             }
         }).run(arg);
@@ -1218,9 +1217,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> blpop(int timeout, String key) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.blpop(timeout, key);
             }
         }).run(key);
@@ -1229,9 +1228,9 @@ public class RedisDaoImplShared implements IRedisDao{
     @Override
     @Deprecated
     public List<String> brpop(String arg) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.brpop(arg);
             }
         }).run(arg);
@@ -1239,9 +1238,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> brpop(int timeout, String key) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.brpop(timeout, key);
             }
         }).run(key);
@@ -1249,9 +1248,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long del(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.del(key);
             }
         }).run(key);
@@ -1259,9 +1258,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public String echo(String key) {
-        return (String) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public String execute(ShardedJedis connection) {
+            public String execute(Jedis connection) {
                 return connection.echo(key);
             }
         }).run(key);
@@ -1269,9 +1268,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long move(String key, int dbIndex) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.move(key, dbIndex);
             }
         }).run(key);
@@ -1279,9 +1278,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long bitcount(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.bitcount(key);
             }
         }).run(key);
@@ -1289,9 +1288,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long bitcount(String key, long start, long end) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.bitcount(key, start, end);
             }
         }).run(key);
@@ -1299,9 +1298,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long bitpos(String key, boolean value) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.bitpos(key, value);
             }
         }).run(key);
@@ -1309,9 +1308,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long bitpos(String key, boolean value, BitPosParams bitPosParams) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.bitpos(key, value, bitPosParams);
             }
         }).run(key);
@@ -1320,9 +1319,9 @@ public class RedisDaoImplShared implements IRedisDao{
     @Override
     @Deprecated
     public ScanResult<Map.Entry<String, String>> hscan(String key, int cursor) {
-        return (ScanResult<Map.Entry<String, String>>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<Map.Entry<String, String>>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<Map.Entry<String, String>> execute(ShardedJedis connection) {
+            public ScanResult<Map.Entry<String, String>> execute(Jedis connection) {
                 return connection.hscan(key, cursor);
             }
         }).run(key);
@@ -1331,9 +1330,9 @@ public class RedisDaoImplShared implements IRedisDao{
     @Override
     @Deprecated
     public ScanResult<String> sscan(String key, int cursor) {
-        return (ScanResult<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<String> execute(ShardedJedis connection) {
+            public ScanResult<String> execute(Jedis connection) {
                 return connection.sscan(key, cursor);
             }
         }).run(key);
@@ -1342,9 +1341,9 @@ public class RedisDaoImplShared implements IRedisDao{
     @Override
     @Deprecated
     public ScanResult<Tuple> zscan(String key, int cursor) {
-        return (ScanResult<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<Tuple> execute(ShardedJedis connection) {
+            public ScanResult<Tuple> execute(Jedis connection) {
                 return connection.zscan(key, cursor);
             }
         }).run(key);
@@ -1352,9 +1351,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public ScanResult<Map.Entry<String, String>> hscan(String key, String cursor) {
-        return (ScanResult<Map.Entry<String, String>>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<Map.Entry<String, String>>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<Map.Entry<String, String>> execute(ShardedJedis connection) {
+            public ScanResult<Map.Entry<String, String>> execute(Jedis connection) {
                 return connection.hscan(key, cursor);
             }
         }).run(key);
@@ -1362,9 +1361,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public ScanResult<Map.Entry<String, String>> hscan(String key, String cursor, ScanParams scanParams) {
-        return (ScanResult<Map.Entry<String, String>>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<Map.Entry<String, String>>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<Map.Entry<String, String>> execute(ShardedJedis connection) {
+            public ScanResult<Map.Entry<String, String>> execute(Jedis connection) {
                 return connection.hscan(key, cursor, scanParams);
             }
         }).run(key);
@@ -1372,9 +1371,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public ScanResult<String> sscan(String key, String cursor) {
-        return (ScanResult<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<String> execute(ShardedJedis connection) {
+            public ScanResult<String> execute(Jedis connection) {
                 return connection.sscan(key, cursor);
             }
         }).run(key);
@@ -1382,9 +1381,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public ScanResult<String> sscan(String key, String cursor, ScanParams scanParams) {
-        return (ScanResult<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<String> execute(ShardedJedis connection) {
+            public ScanResult<String> execute(Jedis connection) {
                 return connection.sscan(key, cursor, scanParams);
             }
         }).run(key);
@@ -1392,9 +1391,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public ScanResult<Tuple> zscan(String key, String cursor) {
-        return (ScanResult<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<Tuple> execute(ShardedJedis connection) {
+            public ScanResult<Tuple> execute(Jedis connection) {
                 return connection.zscan(key, cursor);
             }
         }).run(key);
@@ -1402,9 +1401,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public ScanResult<Tuple> zscan(String key, String cursor, ScanParams scanParams) {
-        return (ScanResult<Tuple>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (ScanResult<Tuple>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public ScanResult<Tuple> execute(ShardedJedis connection) {
+            public ScanResult<Tuple> execute(Jedis connection) {
                 return connection.zscan(key, cursor, scanParams);
             }
         }).run(key);
@@ -1412,9 +1411,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long pfadd(String key, String... elements) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.pfadd(key, elements);
             }
         }).run(key);
@@ -1422,9 +1421,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public long pfcount(String key) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.pfcount(key);
             }
         }).run(key);
@@ -1432,9 +1431,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long geoadd(String key, double longitude, double latitude, String member) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.geoadd(key, longitude, latitude, member);
             }
         }).run(key);
@@ -1442,9 +1441,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Long geoadd(String key, Map<String, GeoCoordinate> memberCoordinateMap) {
-        return (Long) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Long execute(ShardedJedis connection) {
+            public Long execute(Jedis connection) {
                 return connection.geoadd(key, memberCoordinateMap);
             }
         }).run(key);
@@ -1452,9 +1451,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Double geodist(String key, String member1, String member2) {
-        return (Double) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Double) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Double execute(ShardedJedis connection) {
+            public Double execute(Jedis connection) {
                 return connection.geodist(key, member1, member2);
             }
         }).run(key);
@@ -1462,9 +1461,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public Double geodist(String key, String member1, String member2, GeoUnit unit) {
-        return (Double) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (Double) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public Double execute(ShardedJedis connection) {
+            public Double execute(Jedis connection) {
                 return connection.geodist(key, member1, member2, unit);
             }
         }).run(key);
@@ -1472,9 +1471,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<String> geohash(String key, String... members) {
-        return (List<String>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<String>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<String> execute(ShardedJedis connection) {
+            public List<String> execute(Jedis connection) {
                 return connection.geohash(key, members);
             }
         }).run(key);
@@ -1482,9 +1481,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<GeoCoordinate> geopos(String key, String... members) {
-        return (List<GeoCoordinate>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<GeoCoordinate>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<GeoCoordinate> execute(ShardedJedis connection) {
+            public List<GeoCoordinate> execute(Jedis connection) {
                 return connection.geopos(key, members);
             }
         }).run(key);
@@ -1492,9 +1491,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit) {
-        return (List<GeoRadiusResponse>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<GeoRadiusResponse>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<GeoRadiusResponse> execute(ShardedJedis connection) {
+            public List<GeoRadiusResponse> execute(Jedis connection) {
                 return connection.georadius(key, longitude, latitude, radius, unit);
             }
         }).run(key);
@@ -1502,9 +1501,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit, GeoRadiusParam param) {
-        return (List<GeoRadiusResponse>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<GeoRadiusResponse>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<GeoRadiusResponse> execute(ShardedJedis connection) {
+            public List<GeoRadiusResponse> execute(Jedis connection) {
                 return connection.georadius(key, longitude, latitude, radius, unit, param);
             }
         }).run(key);
@@ -1512,9 +1511,9 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit) {
-        return (List<GeoRadiusResponse>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<GeoRadiusResponse>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<GeoRadiusResponse> execute(ShardedJedis connection) {
+            public List<GeoRadiusResponse> execute(Jedis connection) {
                 return connection.georadiusByMember(key, member, radius, unit);
             }
         }).run(key);
@@ -1522,131 +1521,211 @@ public class RedisDaoImplShared implements IRedisDao{
 
     @Override
     public List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit, GeoRadiusParam param) {
-        return (List<GeoRadiusResponse>) (new JedisSharedCommand(this.connectionHandler, this.maxRedirections) {
+        return (List<GeoRadiusResponse>) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
             @Override
-            public List<GeoRadiusResponse> execute(ShardedJedis connection) {
+            public List<GeoRadiusResponse> execute(Jedis connection) {
                 return connection.georadiusByMember(key, member, radius, unit, param);
             }
         }).run(key);
     }
 
     @Override
-    @Deprecated
     public String ping() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.ping();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String quit() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.quit();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String flushDB() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.flushDB();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public Long dbSize() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public Long execute(Jedis connection) {
+                return connection.dbSize();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String select(int index) {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.select(index);
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String flushAll() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.flushAll();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String auth(String password) {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.auth(password);
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String save() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.save();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String bgsave() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.bgsave();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String bgrewriteaof() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.bgrewriteaof();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public Long lastsave() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public Long execute(Jedis connection) {
+                return connection.lastsave();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String shutdown() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.shutdown();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String info() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.info();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String info(String section) {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.info(section);
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String slaveof(String host, int port) {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.slaveof(host, port);
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String slaveofNoOne() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.slaveofNoOne();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public Long getDB() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public Long execute(Jedis connection) {
+                return connection.getDB();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String debug(DebugParams debugParams) {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.debug(debugParams);
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public String configResetStat() {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (String) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public String execute(Jedis connection) {
+                return connection.configResetStat();
+            }
+        }).run();
     }
 
     @Override
-    @Deprecated
     public Long waitReplicas(int replicas, long timeout) {
-        throw new JedisException("No way to dispatch this command to Redis Shared.");
+        return (Long) (new JedisSentinelCommand(this.connectionHandler, this.maxRedirections) {
+            @Override
+            public Long execute(Jedis connection) {
+                return connection.waitReplicas(replicas, timeout);
+            }
+        }).run();
     }
 }

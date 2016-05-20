@@ -24,16 +24,16 @@
     </bean>
 
     <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
-        <constructor-arg ref="jedisPoolConfig"></constructor-arg>
-        <constructor-arg value="127.0.0.1"></constructor-arg>
-        <constructor-arg value="6379"></constructor-arg>
-        <constructor-arg value="5000"></constructor-arg>
-        <constructor-arg value="wudan1989"></constructor-arg>
+        <constructor-arg ref="jedisPoolConfig"/>
+        <constructor-arg value="127.0.0.1"/>
+        <constructor-arg value="6379"/>
+        <constructor-arg value="5000"/>
+        <constructor-arg value="wudan1989"/>
     </bean>
 
     <bean id="redisDao" class="org.journey.dao.redis.achieve.impl.RedisDaoImplSingle" destroy-method="close">
-        <constructor-arg ref="jedisPool"></constructor-arg>
-        <constructor-arg value="3"></constructor-arg>
+        <constructor-arg ref="jedisPool"/>
+        <constructor-arg value="3"/>
     </bean>
 
 </beans>
