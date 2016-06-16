@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * @author wudan-mac
  * @ClassName: RedisDaoImplShared
- * @ClassNameExplain: 分片redisDao实现类
+ * @ClassNameExplain: 主从redisDao实现类
  * @Description:
  * @date 16/5/19 下午3:38
  */

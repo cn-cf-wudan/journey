@@ -37,6 +37,9 @@ public class ConstantUtil {
     public final static String WEB_MODEL_VIEW_TEMPLATE_DIR = "template_web_model";
 
     //web工程模板文件路径(返回json)
-    public final static String WEB_STRING_TEMPLATE_DIR = "template_web_string";
+    public final static String WEB_JSON_TEMPLATE_DIR = "template_web_json";
+
+    //web工程基础模板文件路径(登录/登出/失效/error等)
+    public final static String WEB_BASE_TEMPLATE_DIR = "template_web_base";
 
 }

@@ -32,7 +32,7 @@
 	</bean> -->
 
 	<!-- 引入commons-dao中redis配置文件-->
-	<import resource="classpath*:config/spring-redis-cluster.xml"></import>
+	<import resource="classpath*:spring-redis-cluster.xml"></import>
 	<!--引入commons-exception中的配置文件-->
 	<import resource="classpath*:config/spring-exception.xml"></import>
 	<!-- 引入commons-log中的配置文件-->

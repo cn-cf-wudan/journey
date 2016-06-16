@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.journey.dao.mysql.mingrui.achieve.VisitLogMapper" >
+  <resultMap id="BaseResultMap" type="org.journey.po.mingrui.mysql.VisitLog" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="function_name" property="functionName" jdbcType="VARCHAR" />
+    <result column="function_description" property="functionDescription" jdbcType="VARCHAR" />
+    <result column="visit_time" property="visitTime" jdbcType="TIMESTAMP" />
+    <result column="visit_ip" property="visitIp" jdbcType="VARCHAR" />
+    <result column="visit_id" property="visitId" jdbcType="INTEGER" />
+    <result column="visit_name" property="visitName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, function_name, function_description, visit_time, visit_ip, visit_id, visit_name
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from visit_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from visit_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.journey.po.mingrui.mysql.VisitLog" >
+    insert into visit_log (id, function_name, function_description, 
+      visit_time, visit_ip, visit_id, 
+      visit_name)
+    values (#{id,jdbcType=INTEGER}, #{functionName,jdbcType=VARCHAR}, #{functionDescription,jdbcType=VARCHAR}, 
+      #{visitTime,jdbcType=TIMESTAMP}, #{visitIp,jdbcType=VARCHAR}, #{visitId,jdbcType=INTEGER}, 
+      #{visitName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.journey.po.mingrui.mysql.VisitLog" >
+    insert into visit_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="functionName != null" >
+        function_name,
+      </if>
+      <if test="functionDescription != null" >
+        function_description,
+      </if>
+      <if test="visitTime != null" >
+        visit_time,
+      </if>
+      <if test="visitIp != null" >
+        visit_ip,
+      </if>
+      <if test="visitId != null" >
+        visit_id,
+      </if>
+      <if test="visitName != null" >
+        visit_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="functionName != null" >
+        #{functionName,jdbcType=VARCHAR},
+      </if>
+      <if test="functionDescription != null" >
+        #{functionDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="visitTime != null" >
+        #{visitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="visitIp != null" >
+        #{visitIp,jdbcType=VARCHAR},
+      </if>
+      <if test="visitId != null" >
+        #{visitId,jdbcType=INTEGER},
+      </if>
+      <if test="visitName != null" >
+        #{visitName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.journey.po.mingrui.mysql.VisitLog" >
+    update visit_log
+    <set >
+      <if test="functionName != null" >
+        function_name = #{functionName,jdbcType=VARCHAR},
+      </if>
+      <if test="functionDescription != null" >
+        function_description = #{functionDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="visitTime != null" >
+        visit_time = #{visitTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="visitIp != null" >
+        visit_ip = #{visitIp,jdbcType=VARCHAR},
+      </if>
+      <if test="visitId != null" >
+        visit_id = #{visitId,jdbcType=INTEGER},
+      </if>
+      <if test="visitName != null" >
+        visit_name = #{visitName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.journey.po.mingrui.mysql.VisitLog" >
+    update visit_log
+    set function_name = #{functionName,jdbcType=VARCHAR},
+      function_description = #{functionDescription,jdbcType=VARCHAR},
+      visit_time = #{visitTime,jdbcType=TIMESTAMP},
+      visit_ip = #{visitIp,jdbcType=VARCHAR},
+      visit_id = #{visitId,jdbcType=INTEGER},
+      visit_name = #{visitName,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

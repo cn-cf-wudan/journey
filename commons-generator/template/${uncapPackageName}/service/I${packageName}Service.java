@@ -14,7 +14,7 @@ package ${basepackage}.${packager.uncapPackageName}.service;
 public interface I${className}Service {
 
     /**
-    * @Title: demoApi
+    * @Title: ${classNameLower}
     * @TitleExplain:
     * @Description: 业务层接口方法定义
     * @param ${className}VO

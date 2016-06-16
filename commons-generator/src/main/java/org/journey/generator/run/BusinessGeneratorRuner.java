@@ -24,12 +24,12 @@ public class BusinessGeneratorRuner {
         //清空目录
         sinldoGenerator.clean();
         //这里根据工程情况自己定义
-        PropertiesProvider.setBasePackage("org.journey.demoapi.business");
+        PropertiesProvider.setBasePackage("org.journey.mingrui.web.business.carinfo");
         //接口名称使用驼峰形式定义 首字母大写
         //sinldoGenerator.generatePackage("Test");
         Packager packager = new Packager();
-        packager.setPackageName("Demo");
-        packager.setTempletDir(ConstantUtil.API_TEMPLATE_DIR);
+        packager.setPackageName("ListCarInfo");
+        packager.setTempletDir(ConstantUtil.WEB_JSON_TEMPLATE_DIR);
         packager.setAuthor("wudan-mac");
         packager.setDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         sinldoGenerator.generatePackage(packager);

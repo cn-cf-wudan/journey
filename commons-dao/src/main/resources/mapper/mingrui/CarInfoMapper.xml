@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.journey.dao.mysql.mingrui.achieve.CarInfoMapper" >
+  <resultMap id="BaseResultMap" type="org.journey.po.mingrui.mysql.CarInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="model" property="model" jdbcType="VARCHAR" />
+    <result column="model_name" property="modelName" jdbcType="VARCHAR" />
+    <result column="model_short" property="modelShort" jdbcType="VARCHAR" />
+    <result column="car_factoty" property="carFactoty" jdbcType="VARCHAR" />
+    <result column="car_vin" property="carVin" jdbcType="VARCHAR" />
+    <result column="engine" property="engine" jdbcType="VARCHAR" />
+    <result column="displacement" property="displacement" jdbcType="VARCHAR" />
+    <result column="power" property="power" jdbcType="VARCHAR" />
+    <result column="batch" property="batch" jdbcType="VARCHAR" />
+    <result column="engine_factory" property="engineFactory" jdbcType="VARCHAR" />
+    <result column="punch_machine" property="punchMachine" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, model, model_name, model_short, car_factoty, car_vin, engine, displacement, power, 
+    batch, engine_factory, punch_machine, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from car_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from car_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" parameterType="org.journey.po.mingrui.mysql.CarInfo" >
+    insert into car_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="model != null" >
+        model,
+      </if>
+      <if test="modelName != null" >
+        model_name,
+      </if>
+      <if test="modelShort != null" >
+        model_short,
+      </if>
+      <if test="carFactoty != null" >
+        car_factoty,
+      </if>
+      <if test="carVin != null" >
+        car_vin,
+      </if>
+      <if test="engine != null" >
+        engine,
+      </if>
+      <if test="displacement != null" >
+        displacement,
+      </if>
+      <if test="power != null" >
+        power,
+      </if>
+      <if test="batch != null" >
+        batch,
+      </if>
+      <if test="engineFactory != null" >
+        engine_factory,
+      </if>
+      <if test="punchMachine != null" >
+        punch_machine,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="model != null" >
+        #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="modelName != null" >
+        #{modelName,jdbcType=VARCHAR},
+      </if>
+      <if test="modelShort != null" >
+        #{modelShort,jdbcType=VARCHAR},
+      </if>
+      <if test="carFactoty != null" >
+        #{carFactoty,jdbcType=VARCHAR},
+      </if>
+      <if test="carVin != null" >
+        #{carVin,jdbcType=VARCHAR},
+      </if>
+      <if test="engine != null" >
+        #{engine,jdbcType=VARCHAR},
+      </if>
+      <if test="displacement != null" >
+        #{displacement,jdbcType=VARCHAR},
+      </if>
+      <if test="power != null" >
+        #{power,jdbcType=VARCHAR},
+      </if>
+      <if test="batch != null" >
+        #{batch,jdbcType=VARCHAR},
+      </if>
+      <if test="engineFactory != null" >
+        #{engineFactory,jdbcType=VARCHAR},
+      </if>
+      <if test="punchMachine != null" >
+        #{punchMachine,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.journey.po.mingrui.mysql.CarInfo" >
+    update car_info
+    <set >
+      <if test="model != null" >
+        model = #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="modelName != null" >
+        model_name = #{modelName,jdbcType=VARCHAR},
+      </if>
+      <if test="modelShort != null" >
+        model_short = #{modelShort,jdbcType=VARCHAR},
+      </if>
+      <if test="carFactoty != null" >
+        car_factoty = #{carFactoty,jdbcType=VARCHAR},
+      </if>
+      <if test="carVin != null" >
+        car_vin = #{carVin,jdbcType=VARCHAR},
+      </if>
+      <if test="engine != null" >
+        engine = #{engine,jdbcType=VARCHAR},
+      </if>
+      <if test="displacement != null" >
+        displacement = #{displacement,jdbcType=VARCHAR},
+      </if>
+      <if test="power != null" >
+        power = #{power,jdbcType=VARCHAR},
+      </if>
+      <if test="batch != null" >
+        batch = #{batch,jdbcType=VARCHAR},
+      </if>
+      <if test="engineFactory != null" >
+        engine_factory = #{engineFactory,jdbcType=VARCHAR},
+      </if>
+      <if test="punchMachine != null" >
+        punch_machine = #{punchMachine,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>

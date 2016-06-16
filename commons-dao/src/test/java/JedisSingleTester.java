@@ -14,7 +14,7 @@ import javax.annotation.Resource;
  * @date 16/5/18 下午8:00
  */
 @RunWith(SpringJUnit4ClassRunner.class)  //使用junit4进行测试
-@ContextConfiguration({"/config/spring-redis-single.xml"}) //加载配置文件
+@ContextConfiguration({"/spring-redis-single.xml"}) //加载配置文件
 public class JedisSingleTester {
 
     @Resource

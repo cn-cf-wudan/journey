@@ -13,7 +13,7 @@ public class ${className}Controller {
     @Resource
     I${className}Service ${classNameLower}Service;
 
-    @RequestMapping(value = "/${classNameLower}")
+    @RequestMapping(value = "/${classNameLower}.do")
     public ModelAndView ${classNameLower}(@Valid @ModelAttribute("${classNameLower}IO") ${className}IO ${classNameLower}IO, RedirectAttributes attr) throws Exception {
         return ${classNameLower}Service.${classNameLower}(${classNameLower}IO, attr);
     }

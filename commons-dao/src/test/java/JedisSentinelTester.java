@@ -16,7 +16,7 @@ import java.util.Date;
  * @date 16/5/20 上午10:40
  */
 @RunWith(SpringJUnit4ClassRunner.class)  //使用junit4进行测试
-@ContextConfiguration({"/config/spring-redis-sentinel.xml"}) //加载配置文件
+@ContextConfiguration({"/spring-redis-sentinel.xml"}) //加载配置文件
 public class JedisSentinelTester {
 
     @Resource

@@ -133,7 +133,7 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
             errorResponse.setMessage(errorMessage);
             output.write(new Gson().toJson(errorResponse).getBytes(encode));
 
-            response.setStatus(code);
+            response.setStatus(200);
             response.setContentType(contentType);
             response.setContentLength(output.size());
 

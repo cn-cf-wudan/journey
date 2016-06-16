@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.journey.mingrui.web.dao.CarInfoMapperWeb" >
+  <resultMap id="BaseResultMap" type="org.journey.po.mingrui.mysql.CarInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="model" property="model" jdbcType="VARCHAR" />
+    <result column="model_name" property="modelName" jdbcType="VARCHAR" />
+    <result column="model_short" property="modelShort" jdbcType="VARCHAR" />
+    <result column="car_factoty" property="carFactoty" jdbcType="VARCHAR" />
+    <result column="car_vin" property="carVin" jdbcType="VARCHAR" />
+    <result column="engine" property="engine" jdbcType="VARCHAR" />
+    <result column="displacement" property="displacement" jdbcType="VARCHAR" />
+    <result column="power" property="power" jdbcType="VARCHAR" />
+    <result column="batch" property="batch" jdbcType="VARCHAR" />
+    <result column="engine_factory" property="engineFactory" jdbcType="VARCHAR" />
+    <result column="punch_machine" property="punchMachine" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, model, model_name, model_short, car_factoty, car_vin, engine, displacement, power, 
+    batch, engine_factory, punch_machine, remark
+  </sql>
+  <select id="selectBySearchAndPage" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    car_info
+    WHERE 1 = 1
+    <if test="model != null and model != '' ">
+      AND model LIKE concat('%', #{model} ,'%')
+    </if>
+    <if test="engine != null and engine != ''">
+     AND engine LIKE concat('%', #{engine} ,'%')
+    </if>
+  </select>
+
+</mapper>

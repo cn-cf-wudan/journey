@@ -27,28 +27,27 @@
         </javaTypeResolver>
 
         <!-- !!!! Model Configurations !!!! -->
-        <javaModelGenerator targetPackage="org.journey.po.demo.mysql"
+        <javaModelGenerator targetPackage="org.journey.po.mingrui.mysql"
                             targetProject="commons-dao/src/main/java">
             <property name="enableSubPackages" value="false"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
         <!-- !!!! Mapper XML Configurations !!!! -->
-        <sqlMapGenerator targetPackage="demo"
+        <sqlMapGenerator targetPackage="mingrui"
                          targetProject="commons-dao/src/main/resources/mapper">
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
 
         <!-- !!!! Mapper Interface Configurations !!!! -->
-        <javaClientGenerator targetPackage="org.journey.dao.mysql.achieve"
+        <javaClientGenerator targetPackage="org.journey.dao.mysql.mingrui.achieve"
                              targetProject="commons-dao/src/main/java"
                              type="XMLMAPPER">
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
 
         <!-- !!!! Table Configurations !!!!-->
-        <table tableName="de_user"
-               domainObjectName="DEUser"
+        <table tableName="visit_log"
                enableCountByExample="false"
                enableDeleteByExample="false"
                enableSelectByExample="false"

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc 
+		http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd 
+		http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+
+
+    <!-- 数据库链接池配置-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="username" value="${connection.username}"></property>
+        <property name="password" value="${connection.password}"></property>
+        <property name="url" value="${connection.url}"></property>
+        <property name="driverClassName" value="${connection.driverClassName}"></property>
+        <!-- <property name="initialSize" value="${connection.initialSize}"></property> -->
+        <property name="maxActive" value="${connection.maxActive}"></property>
+        <property name="maxIdle" value="${connection.maxIdle}"></property>
+        <property name="minIdle" value="${connection.minIdle}"></property>
+        <property name="maxWait" value="${connection.maxWait}"></property>
+        <property name="removeAbandoned" value="${connection.removeAbandoned}"></property>
+        <property name="removeAbandonedTimeout" value="${connection.removeAbandonedTimeout}"></property>
+        <property name="logAbandoned" value="${connection.logAbandoned}"></property>
+        <property name="testOnBorrow" value="${connection.testOnBorrow}"></property>
+        <property name="validationQuery" value="${connection.validationQuery}"></property>
+        <property name="testOnReturn" value="${connection.testOnBorrow}"></property>
+    </bean>
+
+    <!-- mybatis文件配置，扫描所有mapper文件 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" p:dataSource-ref="dataSource">
+        <!-- configLocation为mybatis属性 mapperLocations为所有mapper -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+        <property name="mapperLocations" value="classpath*:mapper/**/*.xml"></property>
+    </bean>
+
+    <!---->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.journey.dao.mysql.**.achieve,org.journey.**.**.dao"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+
+    <!-- 对数据源进行事务管理 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          p:dataSource-ref="dataSource">
+    </bean>
+    
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>
+    
+</beans>
