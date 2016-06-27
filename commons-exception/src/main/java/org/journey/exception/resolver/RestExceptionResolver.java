@@ -1,7 +1,8 @@
 package org.journey.exception.resolver;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import org.journey.exception.core.BusinessException;
 import org.journey.exception.core.RestExceptionConstants;
 import org.journey.exception.model.ErrorResponse;
@@ -16,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 
 
@@ -87,24 +87,18 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
              */
             HttpMessageNotReadableException notReadEx = (HttpMessageNotReadableException) ex;
             code = RestExceptionConstants.ARGUMENT_ERROR_CODE;
-            errorMessage = notReadEx.getMessage();
-        } else if (ex instanceof UndeclaredThrowableException) {
+            if (notReadEx.getCause() instanceof InvalidFormatException) {
+                InvalidFormatException invalidFormatException = (InvalidFormatException) notReadEx.getCause();
+                errorMessage = invalidFormatException.getPath() + " 中的值 "
+                        + invalidFormatException.getValue() + " 反序列化 "
+                        + invalidFormatException.getTargetType() + " 失败.";
+            } else if (notReadEx.getCause() instanceof JsonParseException) {
+                errorMessage = RestExceptionConstants.ARGUMENT_JSON_ERROR_MSG;
+            } else {
+                errorMessage = RestExceptionConstants.ARGUMENT_ERROR_MSG;
+            }
 
-            /**
-             * 4.处理  undeclaredthrowableexception异常,目前只是GsonHttpMessageConverter转换时发生的异常
-             */
-            UndeclaredThrowableException undeclaredThrowableException = (UndeclaredThrowableException)ex;
-            code = RestExceptionConstants.ARGUMENT_ERROR_CODE;
-            errorMessage = undeclaredThrowableException.getMessage();
-        } else if(ex instanceof JsonSyntaxException){
-            /**
-             * 5.处理  JsonSyntaxException,目前只是GsonHttpMessageConverter转换时发生的异常
-             */
-            JsonSyntaxException jsonSyntaxException = (JsonSyntaxException) ex;
-            code = RestExceptionConstants.ARGUMENT_ERROR_CODE;
-
-            errorMessage = jsonSyntaxException.getCause().getMessage();
-        } else{
+        } else {
             code = RestExceptionConstants.SERVER_EXCEPTION_CODE;
             errorMessage = RestExceptionConstants.SERVER_EXCEPTION_MSG;
         }

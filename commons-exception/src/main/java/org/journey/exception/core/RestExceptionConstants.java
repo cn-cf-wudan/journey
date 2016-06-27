@@ -16,6 +16,7 @@ public class RestExceptionConstants {
     //参数绑定异常
     public static final int ARGUMENT_ERROR_CODE = 10001;
     public static final String ARGUMENT_ERROR_MSG = "参数格式错误";
+    public static final String ARGUMENT_JSON_ERROR_MSG = "json格式错误";
 
     //服务器异常
     public static final int SERVER_EXCEPTION_CODE = 50000;

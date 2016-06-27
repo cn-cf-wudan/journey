@@ -22,6 +22,25 @@ public class DemoIO extends RequestHeader{
     @NotEmpty(message = "不能为空或空字符")
     private String userName;
 
+    private Integer version;
+
+    @Override
+    public String toString() {
+        return "DemoIO{" +
+                "time=" + time +
+                ", userName='" + userName + '\'' +
+                ", version=" + version +
+                '}';
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
     public String getUserName() {
         return userName;
     }
