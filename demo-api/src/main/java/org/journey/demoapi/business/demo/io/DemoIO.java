@@ -16,10 +16,10 @@ import java.util.Date;
 
 public class DemoIO extends RequestHeader{
 
-    @NotNull (message = "不能为空")
+    @NotNull (message = "valid.notNull")
     private Date time;
 
-    @NotEmpty(message = "不能为空或空字符")
+    @NotEmpty(message = "valid.notEmpty")
     private String userName;
 
     private Integer version;

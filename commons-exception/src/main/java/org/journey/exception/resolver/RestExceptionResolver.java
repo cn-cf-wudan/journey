@@ -6,18 +6,22 @@ import com.google.gson.Gson;
 import org.journey.exception.core.BusinessException;
 import org.journey.exception.core.RestExceptionConstants;
 import org.journey.exception.model.ErrorResponse;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -35,6 +39,9 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
     private String contentType = "application/json;charset=UTF-8";
 
     private String encode = "UTF-8";
+
+    @Resource
+    private ResourceBundleMessageSource rms;
 
     public RestExceptionResolver() {
         //值越小，越先执行
@@ -57,6 +64,7 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
         int code = 0;
         String errorMessage = "";
 
+        Locale locale = RequestContextUtils.getLocaleResolver(request).resolveLocale(request);
         if (ex instanceof BusinessException) {
 
             /**
@@ -76,8 +84,8 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
             List<FieldError> errorList = argumentEx.getBindingResult().getFieldErrors();
             for (FieldError error : errorList) {
                 sb.append(error.getField());
-                sb.append("字段");
-                sb.append(error.getDefaultMessage());
+                sb.append("  ");
+                sb.append(rms.getMessage(error.getDefaultMessage(), null, locale));
             }
             errorMessage = sb.toString();
         } else if (ex instanceof HttpMessageNotReadableException) {
@@ -95,7 +103,7 @@ public class RestExceptionResolver extends SimpleMappingExceptionResolver {
             } else if (notReadEx.getCause() instanceof JsonParseException) {
                 errorMessage = RestExceptionConstants.ARGUMENT_JSON_ERROR_MSG;
             } else {
-                errorMessage = RestExceptionConstants.ARGUMENT_ERROR_MSG;
+                errorMessage = rms.getMessage(RestExceptionConstants.ARGUMENT_ERROR_MSG, null, locale);
             }
 
         } else {

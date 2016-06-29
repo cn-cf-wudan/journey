@@ -1,8 +1,8 @@
-package org.journey.demoapi.business.demo.controller;
+package org.journey.demoapi.business.getuserinfo.controller;
 
-import org.journey.demoapi.business.demo.io.DemoIO;
-import org.journey.demoapi.business.demo.service.IDemoService;
-import org.journey.demoapi.business.demo.vo.DemoVO;
+import org.journey.demoapi.business.getuserinfo.io.GetUserInfoIO;
+import org.journey.demoapi.business.getuserinfo.service.IGetUserInfoService;
+import org.journey.demoapi.business.getuserinfo.vo.GetUserInfoVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -15,23 +15,23 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 /**
- * @ClassName: DemoController
+ * @ClassName: GetUserInfoController
  * @ClassNameExplain:
  * @Description:
  * @author wudan-mac
- * @date 2016-05-17 17:25:48
+ * @date 2016-06-29 19:55:29
  */
 @RequestMapping(value = "")
 @Controller
-public class DemoController {
+public class GetUserInfoController {
 
-    static final Logger logger = LoggerFactory.getLogger(DemoController.class);
+    static final Logger logger = LoggerFactory.getLogger(GetUserInfoController.class);
 
     @Resource
-    IDemoService demoService;
+    IGetUserInfoService getUserInfoService;
 
     /**
-     * @api {post} /demo 中文名
+     * @api {post} /getUserInfo 中文名
      * @apiName name
      * @apiGroup name
      * @apiDescription text
@@ -49,12 +49,12 @@ public class DemoController {
      *   }
      * @apiVersion 0.0.0
      * @author wudan-mac
-     * @date 2016-05-17 17:25:48
+     * @date 2016-06-29 19:55:29
      */
-    @RequestMapping(value = "/demo", method = {RequestMethod.POST, RequestMethod.GET})
+    @RequestMapping(value = "/getUserInfo", method = {RequestMethod.POST})
     @ResponseBody
-    public DemoVO demo(@Valid @RequestBody DemoIO demoIO) throws Exception {
-        return demoService.demo(demoIO);
+    public GetUserInfoVO getUserInfo(@Valid @RequestBody GetUserInfoIO getUserInfoIO) throws Exception {
+        return getUserInfoService.getUserInfo(getUserInfoIO);
     }
 
 }

@@ -31,6 +31,8 @@
 		</property>
 	</bean> -->
 
+
+
 	<!-- 引入commons-dao中redis配置文件-->
 	<import resource="classpath*:spring-redis-cluster.xml"></import>
 	<!--引入commons-exception中的配置文件-->
